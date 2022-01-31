@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "blockchain",
+    "name": "blockchain.com",
     "slug": "blockchain",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -13,9 +13,7 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },
