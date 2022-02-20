@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Button, Surface, Text as PaperText } from "react-native-paper";
 import { View, Text, FlatList, TouchableOpacity, Image } from "react-native";
 import MainLayout from "./MainLayout";
 import { connect } from "react-redux";
@@ -6,14 +7,20 @@ import { getHoldings, getCoinMarket } from "../stores/market/marketActions";
 import { useFocusEffect } from "@react-navigation/native";
 import { SIZES, COLORS, FONTS, dummyData, icons } from "../constants";
 import { BalanceInfo, IconTextButton, Charts } from "../components";
+import AppBar from "../components/AppBar";
+import "intl";
+import "intl/locale-data/jsonp/en";
+import ConDisplay from "../components/ConDisplay";
+import { LineChart } from "react-native-chart-kit";
+import DonutChart from "../components/DonutChart";
 
 const Home = ({ getHoldings, getCoinMarket, myHoldings, coins }) => {
   const [selectedCoin, setSelectedCoin] = useState(null);
+  const [topUp, setTopUp] = useState(false);
   useFocusEffect(
     React.useCallback(() => {
       getHoldings((myHoldings = dummyData.holdings));
       getCoinMarket();
-      
     }, [])
   );
 
@@ -54,6 +61,19 @@ const Home = ({ getHoldings, getCoinMarket, myHoldings, coins }) => {
     );
   }
 
+  var formatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  });
+
+  // Percentage color changer
+  let priceColor =
+    coins.price_change_percentage_7d_in_currency == 0
+      ? COLORS.lightGray3
+      : coins.price_change_percentage_7d_in_currency > 0
+      ? COLORS.lightGreen
+      : COLORS.red;
+
   function renderWalletInfoSection() {
     return (
       <View
@@ -61,7 +81,7 @@ const Home = ({ getHoldings, getCoinMarket, myHoldings, coins }) => {
           paddingHorizontal: SIZES.padding,
           borderBottomLeftRadius: 25,
           borderBottomRightRadius: 25,
-          backgroundColor: COLORS.gray,
+          backgroundColor: COLORS.lightBlueAccent,
         }}
       >
         {/* Balance info section  */}
@@ -100,118 +120,177 @@ const Home = ({ getHoldings, getCoinMarket, myHoldings, coins }) => {
   }
   return (
     <MainLayout>
-      <View style={{ flex: 1, backgroundColor: COLORS.black }}>
+      <AppBar title="Home" />
+      <View style={{ flex: 1, backgroundColor: "#f8f8fa" }}>
         {/* Header section - wallet info */}
-        {renderWalletInfoSection()}
+        {/* {renderWalletInfoSection()} */}
 
         {/* chart */}
-        <Charts
+        {/* <Charts
           containerStyle={{ marginTop: SIZES.padding * 2 }}
           chartPrices={
             selectedCoin
               ? selectedCoin.sparkline_in_7d?.price
               : coins[0]?.sparkline_in_7d?.price
           }
-        />
+        /> */}
 
         {/* top crypto */}
-        <FlatList
-          data={coins}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={{
-            marginTop: 30,
-            paddingHorizontal: SIZES.padding,
-          }}
-          ListHeaderComponent={
-            <View style={{ marginBottom: SIZES.radius }}>
-              <Text style={{ color: COLORS.white, ...FONTS.h3, fontSize: 18 }}>
-                Top Cryptocurrency
-              </Text>
-            </View>
-          }
-          renderItem={({ item }) => {
-            let priceColor =
-              item.price_change_percentage_7d_in_currency == 0
-                ? COLORS.lightGray3
-                : item.price_change_percentage_7d_in_currency > 0
-                ? COLORS.lightGreen
-                : COLORS.red;
-            return (
-              <TouchableOpacity
+        {topUp && (
+          <View
+            style={{
+              flex: 1,
+              width: SIZES.width,
+              height: SIZES.height / 2,
+              padding: SIZES.padding,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            {/* Welcome */}
+            <Text
+              style={{
+                width: SIZES.width,
+                ...FONTS.h2,
+                textAlign: "center",
+                padding: SIZES.padding,
+                color: COLORS.gray1,
+              }}
+            >
+              Welcome to Blockchain.com!
+            </Text>
+
+            {/* Subheading */}
+            <Text
+              style={{
+                width: SIZES.width,
+                ...FONTS.body3,
+                textAlign: "center",
+                paddingHorizontal: SIZES.padding,
+                color: COLORS.lightGray3,
+              }}
+            >
+              All your crypto balances will show up here once you buy or
+              receive.
+            </Text>
+
+            {/* Buy crypto */}
+            <Button
+              mode="contained"
+              onPress={() => console.log("Pressed")}
+              style={{
+                width: "100%",
+                margin: 10,
+                paddingVertical: 5,
+              }}
+              labelStyle={{
+                ...FONTS.h3,
+              }}
+              color={COLORS.lightBlueAccent}
+              uppercase={false}
+            >
+              Buy Crypto
+            </Button>
+
+            {/* Receive / Deposit btn */}
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-around",
+                borderWidth: 1,
+                borderRadius: 2,
+                borderColor: "#d7dce1",
+                width: "100%",
+              }}
+            >
+              <Button
+                mode="outlined"
+                onPress={() => console.log("Pressed")}
                 style={{
-                  height: 55,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  width: "50%",
+                  margin: 3,
+                  borderLeftWidth: 0,
+                  borderTopWidth: 0,
+                  borderBottomWidth: 0,
+                  borderRadius: 0,
+                  borderColor: "#d7dce1",
                 }}
-                onPress={() => setSelectedCoin(item)}
+                labelStyle={{
+                  ...FONTS.h4,
+                }}
+                color={COLORS.lightBlueAccent}
+                uppercase={false}
               >
-                {/* Logo */}
-                <View style={{ width: 35 }}>
-                  <Image
-                    source={{ uri: item.image }}
-                    style={{ height: 20, width: 20 }}
-                  />
-                </View>
+                Receicve
+              </Button>
+              <Button
+                mode="outlined"
+                onPress={() => console.log("Pressed")}
+                style={{
+                  width: "50%",
+                  margin: 3,
+                  borderLeftWidth: 0,
+                  borderTopWidth: 0,
+                  borderBottomWidth: 0,
+                  borderRightWidth: 0,
+                  borderRadius: 0,
+                }}
+                labelStyle={{
+                  ...FONTS.h4,
+                }}
+                color={COLORS.lightBlueAccent}
+                uppercase={false}
+              >
+                Deposit
+              </Button>
+            </View>
+          </View>
+        )}
 
-                {/* Name of crypptocurrency */}
-                <View style={{ flex: 1 }}>
-                  <Text style={{ color: COLORS.white, ...FONTS.h3 }}>
-                    {item.name}
-                  </Text>
-                </View>
+        {/* If user has active coins */}
 
-                {/* Figures */}
-                <View>
-                  <Text
-                    style={{
-                      textAlign: "right",
-                      color: COLORS.white,
-                      ...FONTS.h4,
-                    }}
-                  >
-                    {numberToMoney(item.current_price)}
-                  </Text>
+        {!topUp && (
+          <View style={{ flex: 1 }}>
+            <Surface
+              style={{
+                height: 190,
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginTop: 0,
+                padding: SIZES.padding,
+                width: SIZES.width,
+                elevation: 0,
+              }}
+            >
+              {/* Figures */}
 
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      justifyContent: "flex-end",
-                    }}
-                  >
-                    {item.price_change_percentage_7d_in_currency != 0 && (
-                      <Image
-                        source={icons.upArrow}
-                        style={{
-                          height: 10,
-                          width: 10,
-                          tintColor: priceColor,
-                          transform:
-                            item.price_change_percentage_7d_in_currency > 0
-                              ? [{ rotate: "45deg" }]
-                              : [{ rotate: "125deg" }],
-                        }}
-                      />
-                    )}
+              <View>
+                <PaperText style={{ color: COLORS.lightGray3, ...FONTS.h4 }}>
+                  Total Balance
+                </PaperText>
+                <PaperText style={{ color: COLORS.lightGray3, ...FONTS.h2 }}>
+                  {numberToMoney(totalWallet)}
+                </PaperText>
+                <PaperText style={{ color: priceColor, ...FONTS.h5 }}>
+                  {" "}
+                  {formatter.format(valueChange)} {`(${percChange.toFixed(2)})`}
+                  % 7Days
+                </PaperText>
+              </View>
 
-                    <Text
-                      style={{
-                        marginLeft: 5,
-                        color: priceColor,
-                        ...FONTS.body5,
-                        lineHeight: 15,
-                      }}
-                    >
-                      {item.price_change_percentage_7d_in_currency.toFixed(2)}%
-                    </Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            );
-          }}
-          ListFooterComponent={<View style={{ marginBottom: 50 }}></View>}
-        />
+              {/* Chart */}
+              <View>
+                <DonutChart percentage={percChange} color={priceColor} />
+              </View>
+            </Surface>
+
+            {/* Display Portfolio */}
+            <View style={{ flex: 1 }}>
+              <ConDisplay coins={coins} />
+            </View>
+          </View>
+        )}
       </View>
     </MainLayout>
   );

@@ -40,16 +40,16 @@ const BalanceInfo = ({
   }
   return (
     <View style={{ ...containerStyle }}>
-      <Text style={{ ...FONTS.h3, color: COLORS.lightGray3 }}>{title}</Text>
+      <Text style={{ ...FONTS.h3, color: COLORS.black }}>{title}</Text>
 
       <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
-        <Text style={{ ...FONTS.h3, color: COLORS.lightGray3 }}>$</Text>
+        {/* <Text style={{ ...FONTS.h3, color: COLORS.lightGray3 }}>$</Text> */}
         <Text
           style={{ marginLeft: SIZES.base, ...FONTS.h2, color: COLORS.white }}
         >
           {numberToMoney(displayAmount)}
         </Text>
-        <Text style={{ color: COLORS.lightGray3, ...FONTS.h3 }}>USD</Text>
+        <Text style={{ color: COLORS.black, ...FONTS.h3 }}>USD</Text>
       </View>
 
       <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
@@ -88,7 +88,7 @@ const BalanceInfo = ({
           style={{
             marginLeft: SIZES.radius,
             alignSelf: "flex-end",
-            color: COLORS.lightGray3,
+            color: COLORS.black,
             ...FONTS.h5,
           }}
         >

@@ -7,7 +7,7 @@ const TabIcon = ({ focused, icon, iconStyle, label, isTrade }) => {
     myIcons: {
       width: 125,
       height: 25,
-      tintColor: focused ? COLORS.white : COLORS.secondary,
+      tintColor: focused ? COLORS.lightBlueAccent : COLORS.lightGray3,
       ...iconStyle,
     },
   });
@@ -18,23 +18,23 @@ const TabIcon = ({ focused, icon, iconStyle, label, isTrade }) => {
         style={{
           alignItems: "center",
           justifyContent: "center",
-          width: 60,
-          height: 60,
+          width: 50,
+          height: 50,
           borderRadius: 30,
-          backgroundColor: COLORS.black,
+          backgroundColor: COLORS.lightBlueAccent,
         }}
       >
         <Image
           source={icon}
           resizeMode="contain"
           style={{
-            width: 25,
-            height: 25,
+            width: 20,
+            height: 20,
             tintColor: COLORS.white,
             ...iconStyle,
           }}
         />
-        <Text style={{ color: COLORS.white, ...FONTS.h4 }}>{label}</Text>
+        <Text style={{ color: COLORS.white, ...FONTS.body5 }}>{label}</Text>
       </View>
     );
   } else {
@@ -43,8 +43,8 @@ const TabIcon = ({ focused, icon, iconStyle, label, isTrade }) => {
         <Image source={icon} resizeMode="contain" style={styles.myIcons} />
         <Text
           style={{
-            color: focused ? COLORS.white : COLORS.secondary,
-            ...FONTS.h4,
+            color: focused ? COLORS.lightBlueAccent : COLORS.lightGray3,
+            ...FONTS.body5,
           }}
         >
           {label}

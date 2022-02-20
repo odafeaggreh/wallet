@@ -18,6 +18,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "wecode.blockchainapp",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
@@ -25,6 +26,13 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "androidNavigationBar": {
+      "visible": true,
+
+      "barStyle": "dark-content",
+
+      "backgroundColor": "#ffffff"
     }
   }
 }

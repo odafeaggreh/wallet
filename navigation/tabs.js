@@ -25,13 +25,14 @@ const Tabs = ({ setTradeModalVisibilty, isTradeModalVisible }) => {
   function tradeTabButtonOnClickHandler() {
     setTradeModalVisibilty(!isTradeModalVisible);
   }
+
   return (
     <Tab.Navigator
       tabBarOptions={{
         showLabel: false,
         style: {
-          height: 140,
-          backgroundColor: COLORS.primary,
+          height: 60,
+          backgroundColor: COLORS.white,
           borderTopColor: "transparent",
         },
       }}
@@ -57,17 +58,13 @@ const Tabs = ({ setTradeModalVisibilty, isTradeModalVisible }) => {
         }}
       />
       <Tab.Screen
-        name="Portfolio"
-        component={Portfolio}
+        name="Market"
+        component={Market}
         options={{
           tabBarIcon: ({ focused }) => {
             if (!isTradeModalVisible) {
               return (
-                <TabIcon
-                  focused={focused}
-                  icon={icons.briefcase}
-                  label="Portfolio"
-                />
+                <TabIcon focused={focused} icon={icons.market} label="Prices" />
               );
             }
           },
@@ -80,6 +77,7 @@ const Tabs = ({ setTradeModalVisibilty, isTradeModalVisible }) => {
           },
         }}
       />
+
       <Tab.Screen
         name="Trade"
         component={Home}
@@ -105,14 +103,19 @@ const Tabs = ({ setTradeModalVisibilty, isTradeModalVisible }) => {
           ),
         }}
       />
+
       <Tab.Screen
-        name="Market"
-        component={Market}
+        name="Portfolio"
+        component={Portfolio}
         options={{
           tabBarIcon: ({ focused }) => {
             if (!isTradeModalVisible) {
               return (
-                <TabIcon focused={focused} icon={icons.market} label="Market" />
+                <TabIcon
+                  focused={focused}
+                  icon={icons.briefcase}
+                  label="Portfolio"
+                />
               );
             }
           },
@@ -125,6 +128,7 @@ const Tabs = ({ setTradeModalVisibilty, isTradeModalVisible }) => {
           },
         }}
       />
+
       <Tab.Screen
         name="Profile"
         component={Profile}
