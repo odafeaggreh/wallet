@@ -6,6 +6,7 @@ import { getHoldings } from "../stores/market/marketActions";
 import MainLayout from "./MainLayout";
 import { BalanceInfo, Charts } from "../components";
 import { SIZES, COLORS, FONTS, dummyData, icons } from "../constants";
+import AppBar from "../components/AppBar";
 
 const Portfolio = ({ getHoldings, myHoldings }) => {
   const [selectedCoin, setSelectedCoin] = useState(null);
@@ -83,9 +84,10 @@ const Portfolio = ({ getHoldings, myHoldings }) => {
   }
   return (
     <MainLayout>
-      <View style={{ flex: 1, backgroundColor: COLORS.black }}>
+      <AppBar title="Portfolio" />
+      <View style={{ flex: 1, backgroundColor: "#f8f8fa" }}>
         {/* Header section */}
-        {renderCurrentBalanceSection()}
+        {/* {renderCurrentBalanceSection()} */}
 
         {/* Chart section */}
         <Charts
@@ -107,7 +109,7 @@ const Portfolio = ({ getHoldings, myHoldings }) => {
           }}
           ListHeaderComponent={
             <View>
-              <Text style={{ ...FONTS.h2, color: COLORS.white }}>
+              <Text style={{ ...FONTS.h2, color: COLORS.lightGray3 }}>
                 Your Assets
               </Text>
 
@@ -162,7 +164,7 @@ const Portfolio = ({ getHoldings, myHoldings }) => {
                   <Text
                     style={{
                       marginLeft: SIZES.radius,
-                      color: COLORS.white,
+                      color: COLORS.lightGray3,
                       ...FONTS.h4,
                     }}
                   >
@@ -174,7 +176,7 @@ const Portfolio = ({ getHoldings, myHoldings }) => {
                   <Text
                     style={{
                       textAlign: "right",
-                      color: COLORS.white,
+                      color: COLORS.lightGray3,
                       ...FONTS.h4,
                       lineHeight: 15,
                     }}
@@ -221,7 +223,7 @@ const Portfolio = ({ getHoldings, myHoldings }) => {
                   <Text
                     style={{
                       textAlign: "right",
-                      color: COLORS.white,
+                      color: COLORS.lightGray3,
                       ...FONTS.h4,
                       lineHeight: 15,
                     }}

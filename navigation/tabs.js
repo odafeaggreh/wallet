@@ -86,12 +86,9 @@ const Tabs = ({ setTradeModalVisibilty, isTradeModalVisible }) => {
             return (
               <TabIcon
                 focused={focused}
-                icon={isTradeModalVisible ? icons.close : icons.trade}
-                iconStyle={
-                  isTradeModalVisible ? { width: 12, height: 12 } : null
-                }
-                label="Trade"
+                icon={isTradeModalVisible ? icons.close : icons.plus}
                 isTrade={true}
+                label="Trade"
               />
             );
           },

@@ -10,6 +10,7 @@ import {
 import MainLayout from "./MainLayout";
 import { HeaderBar } from "../components";
 import { FONTS, COLORS, SIZES, dummyData, icons } from "../constants";
+import AppBar from "../components/AppBar";
 
 const SectionTitle = ({ title }) => {
   return (
@@ -20,14 +21,14 @@ const SectionTitle = ({ title }) => {
 };
 
 const Setting = ({ title, value, type, onPress }) => {
-  if (type == "button") {
+  if (type === "Button") {
     return (
       <View>
         <TouchableOpacity
           style={{ flexDirection: "row", height: 50, alignItems: "center" }}
           onPress={onPress}
         >
-          <Text style={{ flex: 1, color: COLORS.white, ...FONTS.h3 }}>
+          <Text style={{ flex: 1, color: COLORS.black, ...FONTS.h3 }}>
             {title}
           </Text>
 
@@ -35,7 +36,7 @@ const Setting = ({ title, value, type, onPress }) => {
             <Text
               style={{
                 marginRight: SIZES.radius,
-                color: COLORS.lightGray3,
+                color: COLORS.black,
                 ...FONTS.h3,
               }}
             >
@@ -43,7 +44,7 @@ const Setting = ({ title, value, type, onPress }) => {
             </Text>
             <Image
               source={icons.rightArrow}
-              style={{ height: 15, width: 15, tintColor: COLORS.white }}
+              style={{ height: 15, width: 15, tintColor: COLORS.black }}
             />
           </View>
         </TouchableOpacity>
@@ -52,7 +53,7 @@ const Setting = ({ title, value, type, onPress }) => {
   } else {
     return (
       <View style={{ flexDirection: "row", height: 50, alignItems: "center" }}>
-        <Text style={{ flex: 1, color: COLORS.white, ...FONTS.h3 }}>
+        <Text style={{ flex: 1, color: COLORS.black, ...FONTS.h3 }}>
           {title}
         </Text>
 
@@ -66,18 +67,19 @@ const Profile = () => {
   const [faceId, setFaceId] = React.useState(true);
   return (
     <MainLayout>
+      <AppBar title="Profile" />
       <View
         style={{
           flex: 1,
           paddingHorizontal: SIZES.padding,
-          backgroundColor: COLORS.black,
+          backgroundColor: "#f8f8fa",
         }}
       >
         {/* Header */}
-        <HeaderBar
+        {/* <HeaderBar
           title="Profile
         "
-        />
+        /> */}
 
         {/* Details */}
         <ScrollView>
@@ -85,10 +87,10 @@ const Profile = () => {
           <View style={{ flexDirection: "row", marginTop: SIZES.radius }}>
             {/* Email & ID */}
             <View style={{ flex: 1 }}>
-              <Text style={{ color: COLORS.white, ...FONTS.h3 }}>
+              <Text style={{ color: COLORS.black, ...FONTS.h3 }}>
                 {dummyData.profile.email}
               </Text>
-              <Text style={{ color: COLORS.lightGray3, ...FONTS.body4 }}>
+              <Text style={{ color: COLORS.black, ...FONTS.body4 }}>
                 {dummyData.profile.id}
               </Text>
             </View>
@@ -118,13 +120,13 @@ const Profile = () => {
           <Setting
             title="Appearance"
             value="Home"
-            type="button"
+            type="Button"
             onPress={() => console.log("Pressed")}
           />
           <Setting
             title="Launch Screen"
             value="Dark"
-            type="button"
+            type="Button"
             onPress={() => console.log("Pressed")}
           />
 
@@ -135,13 +137,13 @@ const Profile = () => {
           <Setting
             title="Payment Currency"
             value="USD"
-            type="button"
+            type="Button"
             onPress={() => console.log("Pressed")}
           />
           <Setting
             title="Language"
             value="English"
-            type="button"
+            type="Button"
             onPress={() => console.log("Pressed")}
           />
 

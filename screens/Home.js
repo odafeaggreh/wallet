@@ -13,6 +13,7 @@ import "intl/locale-data/jsonp/en";
 import ConDisplay from "../components/ConDisplay";
 import { LineChart } from "react-native-chart-kit";
 import DonutChart from "../components/DonutChart";
+import ChartPie from "../components/ChartPie";
 
 const Home = ({ getHoldings, getCoinMarket, myHoldings, coins }) => {
   const [selectedCoin, setSelectedCoin] = useState(null);

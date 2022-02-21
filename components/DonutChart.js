@@ -2,7 +2,7 @@ import { View, Text, Animated } from "react-native";
 import React from "react";
 import Svg, { G, Circle } from "react-native-svg";
 
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+// const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const DonutChart = ({
   percentage,
@@ -18,33 +18,34 @@ const DonutChart = ({
   const circleRef = React.useRef();
   const halfCircle = radius + strokeWidth;
   const circleCircumference = 2 * Math.PI * radius;
-  const animation = (toValue) => {
-    return Animated.timing(animatedValue, {
-      toValue,
-      duration,
-      delay,
-      useNativeDriver: true,
-    }).start();
-  };
+  const strokeDashoffset =
+    circleCircumference - (circleCircumference * percentage) / 100;
+  // const animation = (toValue) => {
+  //   return Animated.timing(animatedValue, {
+  //     toValue,
+  //     duration,
+  //     delay,
+  //     useNativeDriver: true,
+  //   }).start();
+  // };
 
-  React.useEffect(() => {
-    animation(percentage);
+  // React.useEffect(() => {
+  //   animation(percentage);
 
-    animatedValue.addListener((v) => {
-      const maxPerc = (100 * v.value) / max;
-      const strokeDashoffset =
-        circleCircumference - (circleCircumference * maxPerc) / 100;
-      if (circleRef?.current) {
-        circleRef.current.setNativeProps({
-          strokeDashoffset,
-        });
-      }
-    });
+  //   animatedValue.addListener((v) => {
+  //     const maxPerc = (100 * v.value) / max;
 
-    return () => {
-      animatedValue.removeAllListeners();
-    };
-  }, [max, percentage]);
+  //     if (circleRef?.current) {
+  //       circleRef.current.setNativeProps({
+  //         strokeDashoffset,
+  //       });
+  //     }
+  //   });
+
+  //   return () => {
+  //     animatedValue.removeAllListeners();
+  //   };
+  // }, [max, percentage]);
   return (
     <View>
       <Svg
@@ -62,8 +63,7 @@ const DonutChart = ({
             strokeOpacity={0.2}
             fill="transparent"
           />
-          <AnimatedCircle
-            ref={circleRef}
+          <Circle
             cx="50%"
             cy="50%"
             stroke={color}
@@ -71,7 +71,7 @@ const DonutChart = ({
             r={radius}
             fill="transparent"
             strokeDasharray={circleCircumference}
-            strokeDashoffset={circleCircumference}
+            strokeDashoffset={strokeDashoffset}
             strokeLinecap="round"
           />
         </G>

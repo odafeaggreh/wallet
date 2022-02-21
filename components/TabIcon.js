@@ -16,25 +16,24 @@ const TabIcon = ({ focused, icon, iconStyle, label, isTrade }) => {
     return (
       <View
         style={{
+          marginTop: 5,
           alignItems: "center",
           justifyContent: "center",
-          width: 50,
-          height: 50,
-          borderRadius: 30,
-          backgroundColor: COLORS.lightBlueAccent,
         }}
       >
         <Image
           source={icon}
           resizeMode="contain"
           style={{
-            width: 20,
-            height: 20,
-            tintColor: COLORS.white,
+            width: 125,
+            height: 40,
+            tintColor: COLORS.lightBlueAccent,
             ...iconStyle,
           }}
         />
-        <Text style={{ color: COLORS.white, ...FONTS.body5 }}>{label}</Text>
+        <Text style={{ color: COLORS.lightBlueAccent, ...FONTS.body5 }}>
+          {label}
+        </Text>
       </View>
     );
   } else {
