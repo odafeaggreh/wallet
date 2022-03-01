@@ -19,9 +19,13 @@ const IconTextButton = ({ label, icon, containerStyle, onPress }) => {
       <Image
         source={icon}
         resizeMode="contain"
-        style={{ width: 20, height: 20 }}
+        style={{ width: 20, height: 20, tintColor: COLORS.white }}
       />
-      <Text style={{ marginLeft: SIZES.base, ...FONTS.h3 }}>{label}</Text>
+      <Text
+        style={{ marginLeft: SIZES.base, ...FONTS.h3, color: COLORS.white }}
+      >
+        {label}
+      </Text>
     </TouchableOpacity>
   );
 };

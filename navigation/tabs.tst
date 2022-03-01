@@ -7,7 +7,6 @@ import { setTradeModalVisibilty } from "../stores/tab/tabActions";
 import { Home, Portfolio, Market, Profile } from "../screens";
 import { TabIcon } from "../components";
 import { COLORS, icons } from "../constants";
-import AppBar from "../components/AppBar";
 
 const Tab = createBottomTabNavigator();
 
@@ -22,7 +21,7 @@ const TabBarCustomButton = ({ children, onPress }) => {
   );
 };
 
-const Tabs = ({ setTradeModalVisibilty, isTradeModalVisible, navigation }) => {
+const Tabs = ({ setTradeModalVisibilty, isTradeModalVisible }) => {
   function tradeTabButtonOnClickHandler() {
     setTradeModalVisibilty(!isTradeModalVisible);
   }
@@ -57,7 +56,6 @@ const Tabs = ({ setTradeModalVisibilty, isTradeModalVisible, navigation }) => {
             }
           },
         }}
-        navigation={navigation}
       />
       <Tab.Screen
         name="Market"
@@ -78,7 +76,6 @@ const Tabs = ({ setTradeModalVisibilty, isTradeModalVisible, navigation }) => {
             }
           },
         }}
-        navigation={navigation}
       />
 
       <Tab.Screen
@@ -127,7 +124,6 @@ const Tabs = ({ setTradeModalVisibilty, isTradeModalVisible, navigation }) => {
             }
           },
         }}
-        navigation={navigation}
       />
 
       <Tab.Screen
@@ -153,7 +149,6 @@ const Tabs = ({ setTradeModalVisibilty, isTradeModalVisible, navigation }) => {
             }
           },
         }}
-        navigation={navigation}
       />
     </Tab.Navigator>
   );

@@ -10,6 +10,9 @@ const upArrow = require("../assets/icons/up-arrow.png");
 const verified = require("../assets/icons/verified.png");
 const withdraw = require("../assets/icons/withdraw.png");
 const plus = require("../assets/icons/plus.png");
+const padlock = require("../assets/icons/padlock.png");
+const power = require("../assets/icons/power.png");
+const buy = require("../assets/icons/buy.png");
 
 export default {
   briefcase,
@@ -24,4 +27,7 @@ export default {
   verified,
   withdraw,
   plus,
+  padlock,
+  power,
+  buy,
 };

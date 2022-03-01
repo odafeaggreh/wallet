@@ -14,10 +14,20 @@ import ConDisplay from "../components/ConDisplay";
 import { LineChart } from "react-native-chart-kit";
 import DonutChart from "../components/DonutChart";
 import ChartPie from "../components/ChartPie";
+import { useAuth } from "../context/AuthContext";
 
-const Home = ({ getHoldings, getCoinMarket, myHoldings, coins }) => {
+const Home = ({
+  getHoldings,
+  getCoinMarket,
+  myHoldings,
+  coins,
+  navigation,
+}) => {
   const [selectedCoin, setSelectedCoin] = useState(null);
-  const [topUp, setTopUp] = useState(false);
+  const [topUp, setTopUp] = useState(true);
+  const { currentUser, verifiyUserEmail, loading, userIsVrified } = useAuth();
+
+  console.log(currentUser.uid);
   useFocusEffect(
     React.useCallback(() => {
       getHoldings((myHoldings = dummyData.holdings));
@@ -120,8 +130,8 @@ const Home = ({ getHoldings, getCoinMarket, myHoldings, coins }) => {
     );
   }
   return (
-    <MainLayout>
-      <AppBar title="Home" />
+    <MainLayout navigation={navigation}>
+      <AppBar title="Home" navigation={navigation} />
       <View style={{ flex: 1, backgroundColor: "#f8f8fa" }}>
         {/* Header section - wallet info */}
         {/* {renderWalletInfoSection()} */}
@@ -137,6 +147,70 @@ const Home = ({ getHoldings, getCoinMarket, myHoldings, coins }) => {
         /> */}
 
         {/* top crypto */}
+
+        {!currentUser.emailVerified && (
+          <View style={{}}>
+            <Surface
+              style={{
+                marginTop: 50,
+                marginBottom: 20,
+                marginLeft: 10,
+                marginRight: 10,
+                padding: SIZES.padding,
+                elevation: 3,
+              }}
+            >
+              <View style={{ marginBottom: 10 }}>
+                <Image
+                  source={icons.padlock}
+                  style={{
+                    height: 25,
+                    width: 25,
+                    tintColor: COLORS.lightBlueAccent,
+                    alignItems: "flex-start",
+                  }}
+                />
+              </View>
+              <View style={{ marginBottom: 10 }}>
+                <Text
+                  style={{
+                    ...FONTS.h2,
+                    color: COLORS.lightGray,
+                    marginBottom: 10,
+                  }}
+                >
+                  verify your email address
+                </Text>
+                <Text>
+                  In order to start using your blockchain wallet you need to
+                  confirm your email address
+                </Text>
+              </View>
+              <View>
+                <Button
+                  mode="contained"
+                  onPress={verifiyUserEmail}
+                  style={{
+                    width: "100%",
+                    marginTop: 10,
+                    paddingVertical: 5,
+                    elevation: 0,
+                  }}
+                  labelStyle={{
+                    ...FONTS.h3,
+                  }}
+                  color={COLORS.lightBlueAccent}
+                  uppercase={false}
+                  loading={loading}
+                  disabled={loading}
+                >
+                  Verify Email Address
+                </Button>
+              </View>
+            </Surface>
+          </View>
+        )}
+
         {topUp && (
           <View
             style={{
@@ -190,7 +264,7 @@ const Home = ({ getHoldings, getCoinMarket, myHoldings, coins }) => {
               color={COLORS.lightBlueAccent}
               uppercase={false}
             >
-              Buy Crypto
+              Add Crypto
             </Button>
 
             {/* Receive / Deposit btn */}
@@ -222,7 +296,7 @@ const Home = ({ getHoldings, getCoinMarket, myHoldings, coins }) => {
                 color={COLORS.lightBlueAccent}
                 uppercase={false}
               >
-                Receicve
+                Transfer
               </Button>
               <Button
                 mode="outlined"
@@ -242,7 +316,7 @@ const Home = ({ getHoldings, getCoinMarket, myHoldings, coins }) => {
                 color={COLORS.lightBlueAccent}
                 uppercase={false}
               >
-                Deposit
+                Withdraw
               </Button>
             </View>
           </View>

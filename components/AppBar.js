@@ -1,16 +1,32 @@
-import { Appbar } from "react-native-paper";
+import { Appbar, Menu } from "react-native-paper";
+import { View } from "react-native";
 import { SIZES, COLORS, FONTS } from "../constants";
+import { auth } from "../firebase";
+import { useAuth } from "../context/AuthContext";
+import NavigationDrawer from "./NavigationDrawer";
+import { useState } from "react";
+import { DrawerActions } from "@react-navigation/native";
 
-function AppBar({ title }) {
-  const _handleMore = () => console.log("Shown more");
+function AppBar({ title, navigation }) {
+  // const openMenu = (navigation) => {
+  //   navigation.openDrawer();
+  //   console.log(navigation.openDrawer());
+  // };
+
+  // function openMyDrawer() {
+  //   navigation.openDrawer();
+  // }
+
+  const { logout } = useAuth();
 
   return (
-    <Appbar.Header style={{ backgroundColor: "#fff", elevation: 0 }}>
-      <Appbar.Content title={title} />
+    <View>
+      <Appbar.Header style={{ backgroundColor: "#fff", elevation: 0 }}>
+        <Appbar.Content title={title} />
 
-      <Appbar.Action icon="account" onPress={_handleMore} />
-      <Appbar.Action icon="qrcode-scan" onPress={_handleMore} />
-    </Appbar.Header>
+        <Appbar.Action icon="qrcode-scan" onPress={logout} />
+      </Appbar.Header>
+    </View>
   );
 }
 

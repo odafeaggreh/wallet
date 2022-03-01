@@ -1,20 +1,11 @@
-import React, { useEffect } from "react";
-import { View } from "react-native";
-import { createStackNavigator } from "@react-navigation/stack";
-import { NavigationContainer } from "@react-navigation/native";
-import AppLoading from "expo-app-loading";
+import React from "react";
+import AuthNavigation from "./AuthNavigation";
 import { useFonts } from "expo-font";
-import { createStore, applyMiddleware } from "redux";
-import { Provider as StoreProvider } from "react-redux";
-import { Provider as PaperProvider } from "react-native-paper";
-import thunk from "redux-thunk";
-import rootReducer from "./stores/rootReducer";
-import Tabs from "./navigation/tabs";
+import AppLoading from "expo-app-loading";
+import { AuthProvider } from "./context/AuthContext";
+import NavigationDrawer from "./components/NavigationDrawer";
 
-const Stack = createStackNavigator();
-
-const store = createStore(rootReducer, applyMiddleware(thunk));
-const App = () => {
+export default function App() {
   let [fontsLoaded] = useFonts({
     "Roboto-Black": require("./assets/fonts/Roboto-Black.ttf"),
     "Roboto-Bold": require("./assets/fonts/Roboto-Bold.ttf"),
@@ -25,22 +16,9 @@ const App = () => {
     return <AppLoading />;
   } else {
     return (
-      <StoreProvider store={store}>
-        <PaperProvider>
-          <NavigationContainer>
-            <Stack.Navigator
-              screenOptions={{
-                headerShown: false,
-              }}
-              initialRouteName={"MainLayout"}
-            >
-              <Stack.Screen name="MainLayout" component={Tabs} />
-            </Stack.Navigator>
-          </NavigationContainer>
-        </PaperProvider>
-      </StoreProvider>
+      <AuthProvider>
+        <AuthNavigation />
+      </AuthProvider>
     );
   }
-};
-
-export default App;
+}

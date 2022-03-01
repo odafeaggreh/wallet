@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { IconTextButton } from "../components";
 import { COLORS, SIZES, icons } from "../constants";
 
-const MainLayout = ({ children, isTradeModalVisible }) => {
+const MainLayout = ({ children, isTradeModalVisible, navigation }) => {
   const modalAnimatedValue = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -60,8 +60,12 @@ const MainLayout = ({ children, isTradeModalVisible }) => {
         <IconTextButton
           label="Transfer"
           icon={icons.send}
-          onPress={() => console.log("Transer")}
+          containerStyle={{
+            marginTop: SIZES.base,
+          }}
+          onPress={() => navigation.push("BuyCrypto")}
         />
+
         <IconTextButton
           label="Withdraw"
           icon={icons.withdraw}

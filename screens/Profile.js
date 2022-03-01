@@ -11,6 +11,7 @@ import MainLayout from "./MainLayout";
 import { HeaderBar } from "../components";
 import { FONTS, COLORS, SIZES, dummyData, icons } from "../constants";
 import AppBar from "../components/AppBar";
+import { useAuth } from "../context/AuthContext";
 
 const SectionTitle = ({ title }) => {
   return (
@@ -20,7 +21,7 @@ const SectionTitle = ({ title }) => {
   );
 };
 
-const Setting = ({ title, value, type, onPress }) => {
+const Setting = ({ title, value, type, onPress, icon }) => {
   if (type === "Button") {
     return (
       <View>
@@ -43,7 +44,7 @@ const Setting = ({ title, value, type, onPress }) => {
               {value}
             </Text>
             <Image
-              source={icons.rightArrow}
+              source={icon}
               style={{ height: 15, width: 15, tintColor: COLORS.black }}
             />
           </View>
@@ -63,11 +64,12 @@ const Setting = ({ title, value, type, onPress }) => {
   }
 };
 
-const Profile = () => {
+const Profile = ({ navigation }) => {
   const [faceId, setFaceId] = React.useState(true);
+  const { currentUser, logout } = useAuth();
   return (
     <MainLayout>
-      <AppBar title="Profile" />
+      <AppBar title="Profile" navigation={navigation} />
       <View
         style={{
           flex: 1,
@@ -88,93 +90,26 @@ const Profile = () => {
             {/* Email & ID */}
             <View style={{ flex: 1 }}>
               <Text style={{ color: COLORS.black, ...FONTS.h3 }}>
-                {dummyData.profile.email}
+                {currentUser?.email}
               </Text>
               <Text style={{ color: COLORS.black, ...FONTS.body4 }}>
-                {dummyData.profile.id}
+                {currentUser.uid}
               </Text>
             </View>
 
             {/* Status */}
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Image
-                source={icons.verified}
-                style={{ height: 25, width: 25 }}
-              />
-              <Text
-                style={{
-                  marginLeft: SIZES.base,
-                  color: COLORS.lightGreen,
-                  ...FONTS.body4,
-                }}
-              >
-                Verified
-              </Text>
-            </View>
           </View>
 
           {/* App */}
 
-          <SectionTitle title="App" />
-
-          <Setting
-            title="Appearance"
-            value="Home"
-            type="Button"
-            onPress={() => console.log("Pressed")}
-          />
-          <Setting
-            title="Launch Screen"
-            value="Dark"
-            type="Button"
-            onPress={() => console.log("Pressed")}
-          />
-
-          {/* Account */}
-
-          <SectionTitle title="Account" />
-
-          <Setting
-            title="Payment Currency"
-            value="USD"
-            type="Button"
-            onPress={() => console.log("Pressed")}
-          />
-          <Setting
-            title="Language"
-            value="English"
-            type="Button"
-            onPress={() => console.log("Pressed")}
-          />
-
           <SectionTitle title="Security" />
 
           <Setting
-            title="FaceID"
-            value={faceId}
-            type="switch"
-            onPress={(value) => setFaceId(value)}
-          />
-
-          <Setting
-            title="Password Settings"
+            title="Logout"
             value=""
             type="Button"
-            onPress={() => console.log("Pressed")}
-          />
-
-          <Setting
-            title="Change Password"
-            value=""
-            type="Button"
-            onPress={() => console.log("Pressed")}
-          />
-
-          <Setting
-            title="2-Factor Authentication"
-            value=""
-            type="Button"
-            onPress={() => console.log("Pressed")}
+            onPress={logout}
+            icon={icons.power}
           />
         </ScrollView>
       </View>
