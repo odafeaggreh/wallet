@@ -1,18 +1,59 @@
 import { Text, View, FlatList, Image, ScrollView } from "react-native";
-import React, { Component } from "react";
+import React, { Component, useState, useEffect } from "react";
 import { Button, Surface, Text as PaperText } from "react-native-paper";
 import { SIZES, COLORS, FONTS, dummyData, icons } from "../constants";
 import { connect } from "react-redux";
 import { useFocusEffect } from "@react-navigation/native";
 import { getHoldings } from "../stores/market/marketActions";
 import { LineChart } from "react-native-chart-kit";
+import { useAuth } from "../context/AuthContext";
+import { db } from "../firebase";
 import "intl";
 import "intl/locale-data/jsonp/en";
 
 const ConDisplay = ({ getHoldings, myHoldings }) => {
+  const { currentUser, verifiyUserEmail, loading, userIsVrified } = useAuth();
+
+  const [fireHoldings, setFireHoldings] = useState();
+  const [topUp, setTopUp] = useState(true);
+
+  useEffect(() => {
+    if (currentUser) {
+      var docRef = db
+        .collection("users")
+        .doc(currentUser.uid)
+        .collection("holdings")
+        .doc("myHoldings");
+
+      docRef
+        .get()
+        .then((doc) => {
+          if (doc.exists) {
+            // console.log("Document data:", doc.data());
+            const objData = doc.data();
+            // const arrData = Object.entries(objData).map((e) => e[1]);
+            const arrData = [objData].flat();
+            setFireHoldings(arrData);
+
+            setTopUp(true);
+          } else {
+            // doc.data() will be undefined in this case
+            console.log("No such document!");
+
+            setTopUp(false);
+          }
+        })
+        .catch((error) => {
+          console.log("Error getting document:", error);
+          setFireHoldings(error.message);
+          setTopUp(false);
+        });
+    }
+  }, []);
+
   useFocusEffect(
     React.useCallback(() => {
-      getHoldings((myHoldings = dummyData.holdings));
+      getHoldings((myHoldings = fireHoldings));
     }, [])
   );
 

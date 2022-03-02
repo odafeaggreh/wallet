@@ -9,7 +9,7 @@ import { useAuth } from "./context/AuthContext";
 const AuthNavigation = () => {
   const { currentUser } = useAuth();
 
-  return <>{currentUser ? <DrawerNavStack /> : <SignedOutStack />}</>;
+  return <>{currentUser ? <SignedInSack /> : <SignedOutStack />}</>;
 };
 
 export default AuthNavigation;

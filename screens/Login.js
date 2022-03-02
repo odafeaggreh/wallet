@@ -24,7 +24,7 @@ const Login = ({ navigation }) => {
     if (showPassword) {
       setShowPassword(false);
     } else {
-      setShowPassword(true);
+      setShowPassword(false);
     }
   };
   return (
@@ -54,9 +54,7 @@ const Login = ({ navigation }) => {
             alignItems: "center",
           }}
         >
-          <Text style={{ fontSize: 30, fontWeight: "700" }}>
-            Password Required
-          </Text>
+          <Text style={{ fontSize: 30, fontWeight: "700" }}>Please Login</Text>
         </View>
 
         {/* Input fields */}
@@ -69,7 +67,14 @@ const Login = ({ navigation }) => {
             validationSchema={LoginFormSchema}
             validateOnMount={true}
           >
-            {({ handleChange, handleBlur, handleSubmit, values, isValid }) => (
+            {({
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              values,
+              isValid,
+              errors,
+            }) => (
               <>
                 <View
                   style={{
@@ -81,7 +86,7 @@ const Login = ({ navigation }) => {
                     <TextInput
                       style={{ marginTop: 10, marginBottom: 30 }}
                       mode="outlined"
-                      label="Email"
+                      label={errors.email ? errors.email : "Email"}
                       onChangeText={handleChange("email")}
                       onBlur={handleBlur("email")}
                       value={values.email}
@@ -98,7 +103,7 @@ const Login = ({ navigation }) => {
                   <View>
                     <TextInput
                       mode="outlined"
-                      label="Password"
+                      label={errors.password ? errors.password : "Password"}
                       secureTextEntry={showPassword}
                       right={
                         <TextInput.Icon

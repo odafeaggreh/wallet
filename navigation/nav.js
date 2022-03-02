@@ -13,6 +13,7 @@ import ForgotPassword from "../screens/ForgotPassword";
 import { Home } from "../screens";
 import AppBar from "../components/AppBar";
 import BuyCrypto from "../screens/BuyCrypto";
+import Withdraw from "../screens/Withdraw";
 
 const Stack = createStackNavigator();
 
@@ -21,15 +22,18 @@ const store = createStore(rootReducer, applyMiddleware(thunk));
 export const SignedInSack = () => (
   <StoreProvider store={store}>
     <PaperProvider>
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-        }}
-        initialRouteName={"MainLayout"}
-      >
-        <Stack.Screen name="MainLayout" component={Tabs} />
-        <Stack.Screen name="BuyCrypto" component={BuyCrypto} />
-      </Stack.Navigator>
+      <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+          }}
+          initialRouteName={"MainLayout"}
+        >
+          <Stack.Screen name="MainLayout" component={Tabs} />
+          <Stack.Screen name="BuyCrypto" component={BuyCrypto} />
+          <Stack.Screen name="Withdraw" component={Withdraw} />
+        </Stack.Navigator>
+      </NavigationContainer>
     </PaperProvider>
   </StoreProvider>
 );

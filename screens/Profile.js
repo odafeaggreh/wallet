@@ -21,7 +21,7 @@ const SectionTitle = ({ title }) => {
   );
 };
 
-const Setting = ({ title, value, type, onPress, icon }) => {
+const Setting = ({ title, value, type, onPress, icon, navigation }) => {
   if (type === "Button") {
     return (
       <View>
@@ -67,8 +67,9 @@ const Setting = ({ title, value, type, onPress, icon }) => {
 const Profile = ({ navigation }) => {
   const [faceId, setFaceId] = React.useState(true);
   const { currentUser, logout } = useAuth();
+
   return (
-    <MainLayout>
+    <MainLayout navigation={navigation}>
       <AppBar title="Profile" navigation={navigation} />
       <View
         style={{

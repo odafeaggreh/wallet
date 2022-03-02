@@ -14,6 +14,8 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(false);
   const [userIsVrified, setUserIsVerified] = useState(false);
 
+  const [topUp, setTopUp] = useState(false);
+
   // Signup function
   async function signup(email, password, country) {
     try {
@@ -35,11 +37,23 @@ export function AuthProvider({ children }) {
       console.log("🔥 firebase signup successful", email, password);
     } catch (error) {
       setLoading(false);
-      Alert.alert(
-        "Error!",
-        error.message + "\n\n What would you like to do next?"
-      );
-      console.log(error.message);
+
+      if (error.code === "auth/weak-password") {
+        Alert.alert(
+          "Error!",
+          "Password should contain a minimum of 6 characters"
+        );
+      } else if (error.code === "auth/email-already-in-use") {
+        Alert.alert(
+          "Error!",
+          " The email you are trying to use has already been registered, Please sign in or use another email."
+        );
+      } else {
+        Alert.alert(
+          "Error!",
+          "An error has occurred, please try again or contact support"
+        );
+      }
     }
   }
 
@@ -52,21 +66,24 @@ export function AuthProvider({ children }) {
       console.log("🔥 firebase login successful", email, password);
     } catch (error) {
       setLoading(false);
-      Alert.alert(
-        "Error!",
-        error.message + "\n\n What would you like to do next ?",
-        [
-          {
-            text: "OK",
-            onPress: () => console.log("OK"),
-            style: "cancel",
-          },
-          {
-            text: "Sign Up",
-            onPress: () => navigation.push("Signup"),
-          },
-        ]
-      );
+
+      if (error.code === "auth/user-not-found") {
+        Alert.alert(
+          "Error!",
+          "You are not registered as a user. Please register"
+        );
+      } else if (error.code === "auth/wrong-password") {
+        Alert.alert(
+          "Error!",
+          "The password you have entered is incorrect, please try again or reset your password"
+        );
+      } else if (error.code === "auth/too-many-requests") {
+        Alert.alert(
+          "Error!",
+          "You have entered an incorrect password too many times and your account has been temporarily disabled. Please try again after a few minutes or reset your password."
+        );
+      }
+
       console.log(error.message);
     }
   }
@@ -88,16 +105,21 @@ export function AuthProvider({ children }) {
       await auth.sendPasswordResetEmail(email);
       Alert.alert(
         "Success!",
-        "\n\n password reset successfully, check your inbox for further details"
+        "password reset successfully, check your inbox for further details"
       );
       console.log("password reset successfully");
       setLoading(false);
     } catch (error) {
       setLoading(false);
-      Alert.alert(
-        "Error!",
-        error.message + "\n\n What would you like to do next?"
-      );
+      if (error.code === "auth/user-not-found") {
+        Alert.alert(
+          "Error!",
+          "Sorry, the email you have entered is not attached to any account. Please check credentials and try again or register."
+        );
+      } else {
+        Alert.alert("Success!", "An error has occurred. Please try again.");
+      }
+
       console.log(error);
     }
   }
@@ -128,15 +150,12 @@ export function AuthProvider({ children }) {
       await currentUser.sendEmailVerification();
       Alert.alert(
         "Email sent!",
-        "\n\n check your inbox to verify your email address"
+        "check your inbox to verify your email address and reload app"
       );
-      setLoading(false); 
+      setLoading(false);
     } catch (error) {
       setLoading(false);
-      Alert.alert(
-        "Error!",
-        error.message + "\n\n What would you like to do next?"
-      );
+      Alert.alert("Error!", "An error has occurred. Please try again.");
       console.log(error.message);
     }
   }
@@ -153,6 +172,7 @@ export function AuthProvider({ children }) {
     country,
     verifiyUserEmail,
     userIsVrified,
+    topUp,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

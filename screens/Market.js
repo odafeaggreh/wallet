@@ -15,7 +15,7 @@ import { constants, COLORS, FONTS, SIZES, icons } from "../constants";
 import { HeaderBar, TextButton } from "../components";
 import AppBar from "../components/AppBar";
 
-const Market = ({ getCoinMarket, coins }) => {
+const Market = ({ getCoinMarket, coins, navigation }) => {
   const marketTabs = constants.marketTabs.map((marketTab) => ({
     ...marketTab,
     ref: React.createRef(),
@@ -154,40 +154,6 @@ const Market = ({ getCoinMarket, coins }) => {
     );
   };
 
-  function renderTabBar() {
-    return (
-      <View
-        style={{
-          marginTop: SIZES.radius,
-          marginHorizontal: SIZES.radius,
-          borderRadius: SIZES.radius,
-          backgroundColor: COLORS.gray,
-        }}
-      >
-        <Tabs scrollX={scrollX} onMarketTabPress={onMarketTabPress} />
-      </View>
-    );
-  }
-
-  function renderButtons() {
-    return (
-      <View
-        style={{
-          flexDirection: "row",
-          marginTop: SIZES.radius,
-          marginHorizontal: SIZES.radius,
-        }}
-      >
-        <TextButton lable="USD" />
-        <TextButton
-          lable="% (7d)"
-          containerStyle={{ marginLeft: SIZES.base }}
-        />
-        <TextButton lable="Top" containerStyle={{ marginLeft: SIZES.base }} />
-      </View>
-    );
-  }
-
   function renderList() {
     return (
       <View style={{ flex: 1, width: SIZES.width, marginTop: 30 }}>
@@ -317,16 +283,12 @@ const Market = ({ getCoinMarket, coins }) => {
     );
   }
   return (
-    <MainLayout>
+    <MainLayout navigation={navigation}>
       <AppBar title="Market Prices" />
       <View style={{ flex: 1, backgroundColor: "#f8f8fa" }}>
         {/* Header */}
 
         {/* Tab bar */}
-        {/* {renderTabBar()} */}
-
-        {/* Buttons */}
-        {/* {renderButtons()} */}
 
         {/* Market List */}
         {renderList()}

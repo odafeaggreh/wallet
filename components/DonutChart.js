@@ -20,32 +20,9 @@ const DonutChart = ({
   const circleCircumference = 2 * Math.PI * radius;
   const strokeDashoffset =
     circleCircumference - (circleCircumference * percentage) / 100;
-  // const animation = (toValue) => {
-  //   return Animated.timing(animatedValue, {
-  //     toValue,
-  //     duration,
-  //     delay,
-  //     useNativeDriver: true,
-  //   }).start();
-  // };
 
-  // React.useEffect(() => {
-  //   animation(percentage);
+  console.log(color);
 
-  //   animatedValue.addListener((v) => {
-  //     const maxPerc = (100 * v.value) / max;
-
-  //     if (circleRef?.current) {
-  //       circleRef.current.setNativeProps({
-  //         strokeDashoffset,
-  //       });
-  //     }
-  //   });
-
-  //   return () => {
-  //     animatedValue.removeAllListeners();
-  //   };
-  // }, [max, percentage]);
   return (
     <View>
       <Svg

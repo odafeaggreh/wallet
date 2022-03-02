@@ -63,7 +63,7 @@ const Signup = ({ navigation }) => {
               signup(values.email, values.password, values.country)
             }
             validationSchema={SignupFormSchema}
-            validateOnMount={true}
+            validateOnMount={false}
           >
             {({
               handleChange,
@@ -84,7 +84,7 @@ const Signup = ({ navigation }) => {
                     <TextInput
                       style={{ marginTop: 10, marginBottom: 30 }}
                       mode="flat"
-                      label="Email"
+                      label={errors.email ? errors.email : "Email"}
                       onChangeText={handleChange("email")}
                       onBlur={handleBlur("email")}
                       value={values.email}
@@ -102,7 +102,7 @@ const Signup = ({ navigation }) => {
                     <TextInput
                       style={{ marginTop: 10, marginBottom: 30 }}
                       mode="flat"
-                      label="Password"
+                      label={errors.password ? errors.password : "Password"}
                       secureTextEntry={showPassword}
                       right={
                         <TextInput.Icon
@@ -127,7 +127,11 @@ const Signup = ({ navigation }) => {
                     <TextInput
                       style={{ marginTop: 10, marginBottom: 30 }}
                       mode="flat"
-                      label="Confirm password"
+                      label={
+                        errors.passwordConfirmation
+                          ? errors.passwordConfirmation
+                          : "Confirm password"
+                      }
                       secureTextEntry={showPasswordconfirm}
                       right={
                         <TextInput.Icon
@@ -152,7 +156,7 @@ const Signup = ({ navigation }) => {
                   <View>
                     <TextInput
                       mode="flat"
-                      label="Country"
+                      label={errors.country ? errors.country : "Country"}
                       onChangeText={handleChange("country")}
                       onBlur={handleBlur("country")}
                       value={values.country}

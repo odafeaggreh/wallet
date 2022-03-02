@@ -9,16 +9,16 @@ import Validator from "email-validator";
 import SignupAppBar from "../components/SignupAppBar";
 import { db, auth } from "../firebase";
 import { useAuth } from "../context/AuthContext";
-import Clipboard from "expo-clipboard";
+import * as Clipboard from "expo-clipboard";
 
 const BuyCrypto = ({ navigation }) => {
   const { currentUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [walletId, setWalletId] = useState(currentUser.uid);
-  const [copiedText, setCopiedText] = useState("");
 
   const copyToClipboard = () => {
-    Clipboard.setString("hello world");
+    Clipboard.setString(walletId);
+    Alert.alert("Done!", "\n\n Wallet id has been copied to clipboard");
   };
 
   return (

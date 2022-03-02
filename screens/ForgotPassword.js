@@ -44,9 +44,16 @@ const ForgotPassword = ({ navigation }) => {
               resetPassword(values.email);
             }}
             validationSchema={ForgotPasswordFormSchema}
-            validateOnMount={true}
+            validateOnMount={false}
           >
-            {({ handleChange, handleBlur, handleSubmit, values, isValid }) => (
+            {({
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              values,
+              isValid,
+              errors,
+            }) => (
               <>
                 <View
                   style={{
@@ -57,7 +64,7 @@ const ForgotPassword = ({ navigation }) => {
                   <View>
                     <TextInput
                       style={{ marginTop: 10, marginBottom: 10 }}
-                      label="Email"
+                      label={errors.email ? errors.email : "Email"}
                       onChangeText={handleChange("email")}
                       onBlur={handleBlur("email")}
                       value={values.email}

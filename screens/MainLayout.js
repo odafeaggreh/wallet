@@ -72,7 +72,7 @@ const MainLayout = ({ children, isTradeModalVisible, navigation }) => {
           containerStyle={{
             marginTop: SIZES.base,
           }}
-          onPress={() => console.log("Withdraw")}
+          onPress={() => navigation.push("Withdraw")}
         />
       </Animated.View>
     </View>

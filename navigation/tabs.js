@@ -22,6 +22,8 @@ const TabBarCustomButton = ({ children, onPress }) => {
   );
 };
 
+const hello = "hell";
+
 const Tabs = ({ setTradeModalVisibilty, isTradeModalVisible, navigation }) => {
   function tradeTabButtonOnClickHandler() {
     setTradeModalVisibilty(!isTradeModalVisible);
@@ -57,7 +59,7 @@ const Tabs = ({ setTradeModalVisibilty, isTradeModalVisible, navigation }) => {
             }
           },
         }}
-        navigation={navigation}
+        navigation={hello}
       />
       <Tab.Screen
         name="Market"
