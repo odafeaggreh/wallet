@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,8 @@ import {
   FlatList,
   Animated,
   Image,
+  ActivityIndicator,
+  StyleSheet,
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { connect } from "react-redux";
@@ -28,12 +30,6 @@ const Market = ({ getCoinMarket, coins, navigation }) => {
   const scrollX = React.useRef(new Animated.Value(0)).current;
 
   const marketTabScrollViewRef = React.useRef();
-
-  const onMarketTabPress = React.useCallback((marketTabIndex) => {
-    marketTabScrollViewRef?.current?.csrollToOffset({
-      offset: marketTabIndex * SIZES.width,
-    });
-  });
 
   function numberToMoney(
     amount,
@@ -65,94 +61,6 @@ const Market = ({ getCoinMarket, coins, navigation }) => {
         : "")
     );
   }
-
-  const TabIndicator = ({ measureLayout, scrollX }) => {
-    const inputRange = marketTabs.map((_, i) => i * SIZES.width);
-
-    const translateX = scrollX.interpolate({
-      inputRange,
-      outputRange: measureLayout.map((measure) => measure.x),
-    });
-
-    return (
-      <Animated.View
-        style={{
-          position: "absolute",
-          left: 0,
-          height: "100%",
-          width: SIZES.width - (SIZES.radius * 2) / 2,
-          borderRadius: SIZES.radius,
-          backgroundColor: COLORS.lightGray,
-          transform: [
-            {
-              translateX,
-            },
-          ],
-        }}
-      />
-    );
-  };
-
-  const Tabs = ({ scrollX, onMarketTabPress }) => {
-    const [measureLayout, setMeasureLayout] = React.useState([]);
-    const containerRef = React.useRef();
-
-    React.useEffect(() => {
-      let ml = [];
-
-      marketTabs.forEach((marketTab) => {
-        marketTab?.ref?.current?.measureLayout(
-          containerRef.current,
-          (x, y, width, height) => {
-            ml.push({
-              x,
-              y,
-              width,
-              height,
-            });
-
-            if (ml.length === marketTabs.length) {
-              setMeasureLayout(ml);
-            }
-          }
-        );
-      });
-    }, [containerRef.current]);
-
-    return (
-      <View style={{ flexDirection: "row" }} ref={containerRef}>
-        {/* Tabs Indicator */}
-
-        {measureLayout.length > 0 && (
-          <TabIndicator measureLayout={measureLayout} scrollX={scrollX} />
-        )}
-
-        {marketTabs.map((item, index) => {
-          return (
-            <TouchableOpacity
-              key={`MarketTab-${index}`}
-              style={{ flex: 1 }}
-              onPress={() => onMarketTabPress(index)}
-            >
-              <View
-                ref={item.ref}
-                style={{
-                  paddingHorizontal: 15,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  height: 40,
-                }}
-              >
-                <Text style={{ color: COLORS.white, ...FONTS.h3 }}>
-                  {item.title}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-    );
-  };
 
   function renderList() {
     return (
@@ -282,17 +190,37 @@ const Market = ({ getCoinMarket, coins, navigation }) => {
       </View>
     );
   }
+
+  // Activity indicator state
+  const [showIndicator, setShowIndicator] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setShowIndicator(false);
+    }, 5000);
+  });
+
   return (
     <MainLayout navigation={navigation}>
-      <AppBar title="Market Prices" />
-      <View style={{ flex: 1, backgroundColor: "#f8f8fa" }}>
-        {/* Header */}
+      {showIndicator && (
+        <View style={[styles.container, styles.horizontal]}>
+          <ActivityIndicator size="large" color="#fff" />
+        </View>
+      )}
 
-        {/* Tab bar */}
+      {!showIndicator && (
+        <View style={{ flex: 1 }}>
+          <AppBar title="Market Prices" />
+          <View style={{ flex: 1, backgroundColor: "#f8f8fa" }}>
+            {/* Header */}
 
-        {/* Market List */}
-        {renderList()}
-      </View>
+            {/* Tab bar */}
+
+            {/* Market List */}
+            {renderList()}
+          </View>
+        </View>
+      )}
     </MainLayout>
   );
 };
@@ -351,5 +279,18 @@ function mapDispatchToProps(dispatch) {
     },
   };
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    backgroundColor: "#5322e5",
+  },
+  horizontal: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    padding: 10,
+  },
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(Market);

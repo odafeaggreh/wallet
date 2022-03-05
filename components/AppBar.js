@@ -8,23 +8,16 @@ import { useState } from "react";
 import { DrawerActions } from "@react-navigation/native";
 
 function AppBar({ title, navigation }) {
-  // const openMenu = (navigation) => {
-  //   navigation.openDrawer();
-  //   console.log(navigation.openDrawer());
-  // };
-
-  // function openMyDrawer() {
-  //   navigation.openDrawer();
-  // }
-
-  const { logout } = useAuth();
+  const qrScan = () => {
+    console.log("Scanner");
+  };
 
   return (
     <View>
       <Appbar.Header style={{ backgroundColor: "#fff", elevation: 0 }}>
         <Appbar.Content title={title} />
 
-        <Appbar.Action icon="qrcode-scan" onPress={logout} />
+        <Appbar.Action icon="qrcode-scan" onPress={qrScan} />
       </Appbar.Header>
     </View>
   );

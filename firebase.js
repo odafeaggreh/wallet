@@ -4,12 +4,12 @@ import "firebase/compat/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCN2AheH_fLcTjHNKyLv7tqOujbmfonS0I",
-  authDomain: "rn-blockchain.firebaseapp.com",
-  projectId: "rn-blockchain",
-  storageBucket: "rn-blockchain.appspot.com",
-  messagingSenderId: "802897162818",
-  appId: "1:802897162818:web:d210a6b320276c9bb273db",
+  apiKey: "AIzaSyDAaSFXgwoJM15-8jG77uCNH8zjZMwBe5U",
+  authDomain: "blockchain-16f4c.firebaseapp.com",
+  projectId: "blockchain-16f4c",
+  storageBucket: "blockchain-16f4c.appspot.com",
+  messagingSenderId: "673920211067",
+  appId: "1:673920211067:web:39f63584d0eef0f1faeade",
 };
 
 // Initialize Firebase

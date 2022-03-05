@@ -5,7 +5,7 @@ import AppLoading from "expo-app-loading";
 import { AuthProvider } from "./context/AuthContext";
 import NavigationDrawer from "./components/NavigationDrawer";
 
-export default function App() {
+export default function App({ navigation }) {
   let [fontsLoaded] = useFonts({
     "Roboto-Black": require("./assets/fonts/Roboto-Black.ttf"),
     "Roboto-Bold": require("./assets/fonts/Roboto-Bold.ttf"),
@@ -17,7 +17,7 @@ export default function App() {
   } else {
     return (
       <AuthProvider>
-        <AuthNavigation />
+        <AuthNavigation navigation={navigation} />
       </AuthProvider>
     );
   }

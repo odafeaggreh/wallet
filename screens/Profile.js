@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,8 @@ import {
   ScrollView,
   Image,
   Switch,
+  ActivityIndicator,
+  StyleSheet,
 } from "react-native";
 import MainLayout from "./MainLayout";
 import { HeaderBar } from "../components";
@@ -68,54 +70,86 @@ const Profile = ({ navigation }) => {
   const [faceId, setFaceId] = React.useState(true);
   const { currentUser, logout } = useAuth();
 
+  // Activity indicator state
+  const [showIndicator, setShowIndicator] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setShowIndicator(false);
+    }, 5000);
+  });
+
   return (
     <MainLayout navigation={navigation}>
-      <AppBar title="Profile" navigation={navigation} />
-      <View
-        style={{
-          flex: 1,
-          paddingHorizontal: SIZES.padding,
-          backgroundColor: "#f8f8fa",
-        }}
-      >
-        {/* Header */}
-        {/* <HeaderBar
+      {showIndicator && (
+        <View style={[styles.container, styles.horizontal]}>
+          <ActivityIndicator size="large" color="#fff" />
+        </View>
+      )}
+
+      {!showIndicator && (
+        <View style={{ flex: 1 }}>
+          <AppBar title="Profile" navigation={navigation} />
+          <View
+            style={{
+              flex: 1,
+              paddingHorizontal: SIZES.padding,
+              backgroundColor: "#f8f8fa",
+            }}
+          >
+            {/* Header */}
+            {/* <HeaderBar
           title="Profile
         "
         /> */}
 
-        {/* Details */}
-        <ScrollView>
-          {/* email & userID */}
-          <View style={{ flexDirection: "row", marginTop: SIZES.radius }}>
-            {/* Email & ID */}
-            <View style={{ flex: 1 }}>
-              <Text style={{ color: COLORS.black, ...FONTS.h3 }}>
-                {currentUser?.email}
-              </Text>
-              <Text style={{ color: COLORS.black, ...FONTS.body4 }}>
-                {currentUser.uid}
-              </Text>
-            </View>
+            {/* Details */}
+            <ScrollView>
+              {/* email & userID */}
+              <View style={{ flexDirection: "row", marginTop: SIZES.radius }}>
+                {/* Email & ID */}
+                <View style={{ flex: 1 }}>
+                  <Text style={{ color: COLORS.black, ...FONTS.h3 }}>
+                    {currentUser?.email}
+                  </Text>
+                  <Text style={{ color: COLORS.black, ...FONTS.body4 }}>
+                    {currentUser.uid}
+                  </Text>
+                </View>
 
-            {/* Status */}
+                {/* Status */}
+              </View>
+
+              {/* App */}
+
+              <SectionTitle title="Security" />
+
+              <Setting
+                title="Logout"
+                value=""
+                type="Button"
+                onPress={logout}
+                icon={icons.power}
+              />
+            </ScrollView>
           </View>
-
-          {/* App */}
-
-          <SectionTitle title="Security" />
-
-          <Setting
-            title="Logout"
-            value=""
-            type="Button"
-            onPress={logout}
-            icon={icons.power}
-          />
-        </ScrollView>
-      </View>
+        </View>
+      )}
     </MainLayout>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    backgroundColor: "#5322e5",
+  },
+  horizontal: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    padding: 10,
+  },
+});
 
 export default Profile;

@@ -14,6 +14,7 @@ import { Home } from "../screens";
 import AppBar from "../components/AppBar";
 import BuyCrypto from "../screens/BuyCrypto";
 import Withdraw from "../screens/Withdraw";
+import { navigationRef } from "./RootNavigation";
 
 const Stack = createStackNavigator();
 
@@ -41,7 +42,7 @@ export const SignedInSack = () => (
 export const SignedOutStack = () => (
   <StoreProvider store={store}>
     <PaperProvider>
-      <NavigationContainer>
+      <NavigationContainer ref={navigationRef}>
         <Stack.Navigator
           screenOptions={{
             headerShown: false,

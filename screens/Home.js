@@ -133,7 +133,13 @@ const Home = ({
   // Percentage color changer
 
   // Activity indicator state
-  const [showIndicator, setShowIndicator] = useState(false);
+  const [showIndicator, setShowIndicator] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setShowIndicator(false);
+    }, 5000);
+  });
 
   return (
     <MainLayout navigation={navigation}>

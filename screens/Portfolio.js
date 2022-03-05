@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Button, Surface, Text as PaperText } from "react-native-paper";
-import { View, Text, TouchableOpacity, FlatList, Image } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  FlatList,
+  Image,
+  ActivityIndicator,
+  StyleSheet,
+} from "react-native";
 import { connect } from "react-redux";
 import { useFocusEffect } from "@react-navigation/native";
 import { getHoldings } from "../stores/market/marketActions";
@@ -123,282 +131,308 @@ const Portfolio = ({ getHoldings, myHoldings, navigation }) => {
         : "")
     );
   }
+
+  // Activity indicator state
+  const [showIndicator, setShowIndicator] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setShowIndicator(false);
+    }, 5000);
+  });
+
   return (
     <MainLayout navigation={navigation}>
-      <AppBar title="Portfolio" />
-      {!topUp && (
-        <View
-          style={{
-            flex: 1,
-            width: SIZES.width,
-            height: SIZES.height / 2,
-            padding: SIZES.padding,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          {/* Welcome */}
-          <Text
-            style={{
-              width: SIZES.width,
-              ...FONTS.h2,
-              textAlign: "center",
-              padding: SIZES.padding,
-              color: COLORS.gray1,
-            }}
-          >
-            Welcome to Blockchain.com!
-          </Text>
-
-          {/* Subheading */}
-          <Text
-            style={{
-              width: SIZES.width,
-              ...FONTS.body3,
-              textAlign: "center",
-              paddingHorizontal: SIZES.padding,
-              color: COLORS.lightGray3,
-            }}
-          >
-            All your crypto balances will show up here once you buy or receive.
-          </Text>
-
-          {/* Buy crypto */}
-          <Button
-            mode="contained"
-            onPress={() => navigation.push("BuyCrypto")}
-            style={{
-              width: "100%",
-              margin: 10,
-              paddingVertical: 5,
-            }}
-            labelStyle={{
-              ...FONTS.h3,
-            }}
-            color={COLORS.lightBlueAccent}
-            uppercase={false}
-          >
-            Add Crypto
-          </Button>
-
-          {/* Receive / Deposit btn */}
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-around",
-              borderWidth: 1,
-              borderRadius: 2,
-              borderColor: "#d7dce1",
-              width: "100%",
-            }}
-          >
-            <Button
-              mode="outlined"
-              onPress={() => navigation.push("BuyCrypto")}
-              style={{
-                width: "50%",
-                margin: 3,
-                borderLeftWidth: 0,
-                borderTopWidth: 0,
-                borderBottomWidth: 0,
-                borderRadius: 0,
-                borderColor: "#d7dce1",
-              }}
-              labelStyle={{
-                ...FONTS.h4,
-              }}
-              color={COLORS.lightBlueAccent}
-              uppercase={false}
-            >
-              Transfer
-            </Button>
-            <Button
-              mode="outlined"
-              onPress={() => navigation.push("Withdraw")}
-              style={{
-                width: "50%",
-                margin: 3,
-                borderLeftWidth: 0,
-                borderTopWidth: 0,
-                borderBottomWidth: 0,
-                borderRightWidth: 0,
-                borderRadius: 0,
-              }}
-              labelStyle={{
-                ...FONTS.h4,
-              }}
-              color={COLORS.lightBlueAccent}
-              uppercase={false}
-            >
-              Withdraw
-            </Button>
-          </View>
+      {showIndicator && (
+        <View style={[styles.container, styles.horizontal]}>
+          <ActivityIndicator size="large" color="#fff" />
         </View>
       )}
 
-      {topUp && (
-        <View style={{ flex: 1, backgroundColor: "#f8f8fa" }}>
-          {/* Header section */}
-          {/* {renderCurrentBalanceSection()} */}
+      {!showIndicator && (
+        <View style={{ flex: 1 }}>
+          <AppBar title="Portfolio" />
+          {!topUp && (
+            <View
+              style={{
+                flex: 1,
+                width: SIZES.width,
+                height: SIZES.height / 2,
+                padding: SIZES.padding,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              {/* Welcome */}
+              <Text
+                style={{
+                  width: SIZES.width,
+                  ...FONTS.h2,
+                  textAlign: "center",
+                  padding: SIZES.padding,
+                  color: COLORS.gray1,
+                }}
+              >
+                Welcome to Blockchain.com!
+              </Text>
 
-          {/* Chart section */}
-          <Charts
-            containerStyle={{ marginTop: SIZES.radius }}
-            chartPrices={
-              selectedCoin
-                ? selectedCoin.sparkline_in_7d?.value
-                : myHoldings[0].sparkline_in_7d?.value
-            }
-          />
+              {/* Subheading */}
+              <Text
+                style={{
+                  width: SIZES.width,
+                  ...FONTS.body3,
+                  textAlign: "center",
+                  paddingHorizontal: SIZES.padding,
+                  color: COLORS.lightGray3,
+                }}
+              >
+                All your crypto balances will show up here once you buy or
+                receive.
+              </Text>
 
-          {/* Portfolio section */}
-          <FlatList
-            data={myHoldings}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={{
-              marginTop: SIZES.padding,
-              paddingHorizontal: SIZES.padding,
-            }}
-            ListHeaderComponent={
-              <View>
-                <Text style={{ ...FONTS.h2, color: COLORS.lightGray3 }}>
-                  Your Assets
-                </Text>
+              {/* Buy crypto */}
+              <Button
+                mode="contained"
+                onPress={() => navigation.push("BuyCrypto")}
+                style={{
+                  width: "100%",
+                  margin: 10,
+                  paddingVertical: 5,
+                }}
+                labelStyle={{
+                  ...FONTS.h3,
+                }}
+                color={COLORS.lightBlueAccent}
+                uppercase={false}
+              >
+                Add Crypto
+              </Button>
 
-                <View style={{ flexDirection: "row", marginTop: SIZES.radius }}>
-                  <Text style={{ flex: 1, color: COLORS.lightGray3 }}>
-                    Assets
-                  </Text>
-                  <Text
-                    style={{
-                      flex: 1,
-                      color: COLORS.lightGray3,
-                      textAlign: "right",
-                    }}
-                  >
-                    Price
-                  </Text>
-                  <Text
-                    style={{
-                      flex: 1,
-                      color: COLORS.lightGray3,
-                      textAlign: "right",
-                    }}
-                  >
-                    Holdings
-                  </Text>
-                </View>
-              </View>
-            }
-            renderItem={({ item }) => {
-              let priceColor =
-                item.price_change_percentage_7d_in_currency == 0
-                  ? COLORS.lightGray3
-                  : item.price_change_percentage_7d_in_currency > 0
-                  ? COLORS.lightGreen
-                  : COLORS.red;
-              return (
-                <TouchableOpacity
-                  style={{ flexDirection: "row", height: 55 }}
-                  onPress={() => setSelectedCoin(item)}
+              {/* Receive / Deposit btn */}
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-around",
+                  borderWidth: 1,
+                  borderRadius: 2,
+                  borderColor: "#d7dce1",
+                  width: "100%",
+                }}
+              >
+                <Button
+                  mode="outlined"
+                  onPress={() => navigation.push("BuyCrypto")}
+                  style={{
+                    width: "50%",
+                    margin: 3,
+                    borderLeftWidth: 0,
+                    borderTopWidth: 0,
+                    borderBottomWidth: 0,
+                    borderRadius: 0,
+                    borderColor: "#d7dce1",
+                  }}
+                  labelStyle={{
+                    ...FONTS.h4,
+                  }}
+                  color={COLORS.lightBlueAccent}
+                  uppercase={false}
                 >
-                  <View
-                    style={{
-                      flex: 1,
-                      flexDirection: "row",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Image
-                      source={{ uri: item.image }}
-                      style={{ width: 20, height: 20 }}
-                    />
-                    <Text
-                      style={{
-                        marginLeft: SIZES.radius,
-                        color: COLORS.lightGray3,
-                        ...FONTS.h4,
-                      }}
-                    >
-                      {item.name}
-                    </Text>
-                  </View>
+                  Transfer
+                </Button>
+                <Button
+                  mode="outlined"
+                  onPress={() => navigation.push("Withdraw")}
+                  style={{
+                    width: "50%",
+                    margin: 3,
+                    borderLeftWidth: 0,
+                    borderTopWidth: 0,
+                    borderBottomWidth: 0,
+                    borderRightWidth: 0,
+                    borderRadius: 0,
+                  }}
+                  labelStyle={{
+                    ...FONTS.h4,
+                  }}
+                  color={COLORS.lightBlueAccent}
+                  uppercase={false}
+                >
+                  Withdraw
+                </Button>
+              </View>
+            </View>
+          )}
 
-                  <View style={{ flex: 1, justifyContent: "center" }}>
-                    <Text
-                      style={{
-                        textAlign: "right",
-                        color: COLORS.lightGray3,
-                        ...FONTS.h4,
-                        lineHeight: 15,
-                      }}
-                    >
-                      {numberToMoney(item.current_price)}
+          {topUp && (
+            <View style={{ flex: 1, backgroundColor: "#f8f8fa" }}>
+              {/* Header section */}
+              {/* {renderCurrentBalanceSection()} */}
+
+              {/* Chart section */}
+              <Charts
+                containerStyle={{ marginTop: SIZES.radius }}
+                chartPrices={
+                  selectedCoin
+                    ? selectedCoin.sparkline_in_7d?.value
+                    : myHoldings[0].sparkline_in_7d?.value
+                }
+              />
+
+              {/* Portfolio section */}
+              <FlatList
+                data={myHoldings}
+                keyExtractor={(item) => item.id}
+                contentContainerStyle={{
+                  marginTop: SIZES.padding,
+                  paddingHorizontal: SIZES.padding,
+                }}
+                ListHeaderComponent={
+                  <View>
+                    <Text style={{ ...FONTS.h2, color: COLORS.lightGray3 }}>
+                      Your Assets
                     </Text>
 
                     <View
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "flex-end",
-                      }}
+                      style={{ flexDirection: "row", marginTop: SIZES.radius }}
                     >
-                      {item.price_change_percentage_7d_in_currency != 0 && (
-                        <Image
-                          source={icons.upArrow}
-                          style={{
-                            height: 10,
-                            width: 10,
-                            tintColor: priceColor,
-                            transform:
-                              item.price_change_percentage_7d_in_currency > 0
-                                ? [{ rotate: "45deg" }]
-                                : [{ rotate: "125deg" }],
-                          }}
-                        />
-                      )}
-
+                      <Text style={{ flex: 1, color: COLORS.lightGray3 }}>
+                        Assets
+                      </Text>
                       <Text
                         style={{
-                          marginLeft: 5,
-                          color: priceColor,
-                          ...FONTS.body5,
-                          lineHeight: 15,
+                          flex: 1,
+                          color: COLORS.lightGray3,
+                          textAlign: "right",
                         }}
                       >
-                        {item.price_change_percentage_7d_in_currency.toFixed(2)}
-                        %
+                        Price
+                      </Text>
+                      <Text
+                        style={{
+                          flex: 1,
+                          color: COLORS.lightGray3,
+                          textAlign: "right",
+                        }}
+                      >
+                        Holdings
                       </Text>
                     </View>
                   </View>
-
-                  <View style={{ flex: 1, justifyContent: "center" }}>
-                    <Text
-                      style={{
-                        textAlign: "right",
-                        color: COLORS.lightGray3,
-                        ...FONTS.h4,
-                        lineHeight: 15,
-                      }}
+                }
+                renderItem={({ item }) => {
+                  let priceColor =
+                    item.price_change_percentage_7d_in_currency == 0
+                      ? COLORS.lightGray3
+                      : item.price_change_percentage_7d_in_currency > 0
+                      ? COLORS.lightGreen
+                      : COLORS.red;
+                  return (
+                    <TouchableOpacity
+                      style={{ flexDirection: "row", height: 55 }}
+                      onPress={() => setSelectedCoin(item)}
                     >
-                      {numberToMoney(item.total)}
-                    </Text>
+                      <View
+                        style={{
+                          flex: 1,
+                          flexDirection: "row",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Image
+                          source={{ uri: item.image }}
+                          style={{ width: 20, height: 20 }}
+                        />
+                        <Text
+                          style={{
+                            marginLeft: SIZES.radius,
+                            color: COLORS.lightGray3,
+                            ...FONTS.h4,
+                          }}
+                        >
+                          {item.name}
+                        </Text>
+                      </View>
 
-                    <Text
-                      style={{
-                        textAlign: "right",
-                        color: COLORS.lightGray3,
-                        ...FONTS.body5,
-                        lineHeight: 15,
-                      }}
-                    >
-                      {item.qty} {item.symbol.toUpperCase()}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            }}
-          />
+                      <View style={{ flex: 1, justifyContent: "center" }}>
+                        <Text
+                          style={{
+                            textAlign: "right",
+                            color: COLORS.lightGray3,
+                            ...FONTS.h4,
+                            lineHeight: 15,
+                          }}
+                        >
+                          {numberToMoney(item.current_price)}
+                        </Text>
+
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            alignItems: "center",
+                            justifyContent: "flex-end",
+                          }}
+                        >
+                          {item.price_change_percentage_7d_in_currency != 0 && (
+                            <Image
+                              source={icons.upArrow}
+                              style={{
+                                height: 10,
+                                width: 10,
+                                tintColor: priceColor,
+                                transform:
+                                  item.price_change_percentage_7d_in_currency >
+                                  0
+                                    ? [{ rotate: "45deg" }]
+                                    : [{ rotate: "125deg" }],
+                              }}
+                            />
+                          )}
+
+                          <Text
+                            style={{
+                              marginLeft: 5,
+                              color: priceColor,
+                              ...FONTS.body5,
+                              lineHeight: 15,
+                            }}
+                          >
+                            {item.price_change_percentage_7d_in_currency.toFixed(
+                              2
+                            )}
+                            %
+                          </Text>
+                        </View>
+                      </View>
+
+                      <View style={{ flex: 1, justifyContent: "center" }}>
+                        <Text
+                          style={{
+                            textAlign: "right",
+                            color: COLORS.lightGray3,
+                            ...FONTS.h4,
+                            lineHeight: 15,
+                          }}
+                        >
+                          {numberToMoney(item.total)}
+                        </Text>
+
+                        <Text
+                          style={{
+                            textAlign: "right",
+                            color: COLORS.lightGray3,
+                            ...FONTS.body5,
+                            lineHeight: 15,
+                          }}
+                        >
+                          {item.qty} {item.symbol.toUpperCase()}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                }}
+              />
+            </View>
+          )}
         </View>
       )}
     </MainLayout>
@@ -438,5 +472,18 @@ function mapDispatchToProps(dispatch) {
     },
   };
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    backgroundColor: "#5322e5",
+  },
+  horizontal: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    padding: 10,
+  },
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(Portfolio);

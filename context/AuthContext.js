@@ -25,7 +25,7 @@ export function AuthProvider({ children }) {
         password
       );
 
-      db.collection("users").doc(authUsers.user.uid).set(
+      await db.collection("users").doc(authUsers.user.uid).set(
         {
           owner_uid: authUsers.user.uid,
           email: authUsers.user.email,
@@ -150,7 +150,7 @@ export function AuthProvider({ children }) {
       await currentUser.sendEmailVerification();
       Alert.alert(
         "Email sent!",
-        "check your inbox to verify your email address and reload app"
+        "check your inbox to verify your email address and login once more"
       );
       setLoading(false);
     } catch (error) {

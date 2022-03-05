@@ -1,5 +1,13 @@
-import { View, Text, Image, Linking, Alert } from "react-native";
-import React, { useState } from "react";
+import {
+  View,
+  Text,
+  Image,
+  Linking,
+  Alert,
+  ActivityIndicator,
+  StyleSheet,
+} from "react-native";
+import React, { useState, useEffect } from "react";
 import { SIZES, COLORS, FONTS, dummyData, icons } from "../constants";
 import { TextInput, Button, Surface } from "react-native-paper";
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -35,6 +43,15 @@ const Withdraw = ({ navigation }) => {
       navigation.push("MainLayout");
     }, 3000);
   };
+
+  // Activity indicator state
+  const [showIndicator, setShowIndicator] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setShowIndicator(false);
+    }, 5000);
+  });
 
   return (
     <View style={{ flex: 1, backgroundColor: "#f8f8fa" }}>
