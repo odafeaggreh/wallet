@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    backgroundColor: "#5322e5",
+    backgroundColor: "#0c6cf2",
   },
   horizontal: {
     flexDirection: "row",

@@ -4,7 +4,7 @@ const initialState = {
   myHoldings: [],
   coins: [],
   error: null,
-  loading: false,
+  loading: true,
 };
 
 const marketReducer = (state = initialState, action) => {
@@ -18,11 +18,13 @@ const marketReducer = (state = initialState, action) => {
       return {
         ...state,
         myHoldings: action.payload.myHoldings,
+        loading: false,
       };
     case marketActions.GET_HOLDINGS_FAILURE:
       return {
         ...state,
         error: action.payload.error,
+        loading: false,
       };
     case marketActions.GET_COIN_MARKET_BEGIN:
       return {
@@ -34,12 +36,14 @@ const marketReducer = (state = initialState, action) => {
       return {
         ...state,
         coins: action.payload.coins,
+        loading: false,
       };
 
     case marketActions.GET_COIN_MARKET_FAILURE:
       return {
         ...state,
         error: action.payload.error,
+        loading: false,
       };
     default:
       return state;

@@ -27,34 +27,23 @@ const Portfolio = ({ getHoldings, myHoldings, navigation }) => {
   const { currentUser } = useAuth();
 
   useEffect(() => {
+    console.log("current user", currentUser);
     if (currentUser) {
-      var docRef = db
-        .collection("users")
-        .doc(currentUser.uid)
-        .collection("holdings")
-        .doc("myHoldings");
+      const docRef = collection(db, "users", currentUser.uid, "holdings");
 
-      docRef
-        .get()
-        .then((doc) => {
-          if (doc.exists) {
-            // console.log("Document data:", doc.data());
-            const objData = doc.data();
-            // const arrData = Object.entries(objData).map((e) => e[1]);
-            const arrData = [objData].flat();
-            setFireHoldings(arrData);
+      const qSnap = getDocs(docRef)
+        .then((snap) => {
+          const objData = snap.docs.map((doc) => {
+            return doc.data();
+          });
 
-            setTopUp(true);
-          } else {
-            // doc.data() will be undefined in this case
-            console.log("No such document!");
-
-            setTopUp(false);
-          }
+          setFireHoldings(objData);
+          setTopUp(true);
         })
-        .catch((error) => {
-          console.log("Error getting document:", error);
-          setFireHoldings(error.message);
+        .catch((err) => {
+          console.log(err);
+          console.log("No such document!");
+
           setTopUp(false);
         });
     }
@@ -477,7 +466,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    backgroundColor: "#5322e5",
+    backgroundColor: "#0c6cf2",
   },
   horizontal: {
     flexDirection: "row",

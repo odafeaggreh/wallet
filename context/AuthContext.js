@@ -1,6 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Alert } from "react-native";
 import { auth, db } from "../firebase";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+} from "firebase/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { collection, getDocs, doc, getDoc, setDoc } from "firebase/firestore";
 
 const AuthContext = React.createContext();
 
@@ -9,23 +16,24 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }) {
-  const [currentUser, setCurrentUser] = useState();
+  const [currentUser, setCurrentUser] = useState(null);
+  const [asyncCurrentUser, setAsyncCurrentUser] = useState();
   const [country, setCountry] = useState();
   const [loading, setLoading] = useState(false);
-  const [userIsVrified, setUserIsVerified] = useState(false);
-
-  const [topUp, setTopUp] = useState(false);
+  const [stateLoader, setStateLoader] = useState(false);
 
   // Signup function
   async function signup(email, password, country) {
     try {
       setLoading(true);
-      const authUsers = await auth.createUserWithEmailAndPassword(
+      const authUsers = await createUserWithEmailAndPassword(
+        auth,
         email,
         password
       );
 
-      await db.collection("users").doc(authUsers.user.uid).set(
+      await setDoc(
+        doc(db, "users", authUsers.user.uid),
         {
           owner_uid: authUsers.user.uid,
           email: authUsers.user.email,
@@ -34,7 +42,10 @@ export function AuthProvider({ children }) {
         { merge: true }
       );
 
-      console.log("🔥 firebase signup successful", email, password);
+      console.log(
+        "🔥 firebase signup successful and user credentials set to storage",
+        email
+      );
     } catch (error) {
       setLoading(false);
 
@@ -59,33 +70,35 @@ export function AuthProvider({ children }) {
 
   // Login function
 
-  async function login(email, password) {
-    try {
-      setLoading(true);
-      const authUsers = await auth.signInWithEmailAndPassword(email, password);
-      console.log("🔥 firebase login successful", email, password);
-    } catch (error) {
-      setLoading(false);
+  function login(email, password) {
+    setLoading(true);
+    const authUsers = signInWithEmailAndPassword(auth, email, password)
+      .then(() => {
+        setLoading(false);
+        console.log("🔥 firebase login successful");
+      })
+      .catch((error) => {
+        setLoading(false);
 
-      if (error.code === "auth/user-not-found") {
-        Alert.alert(
-          "Error!",
-          "You are not registered as a user. Please register"
-        );
-      } else if (error.code === "auth/wrong-password") {
-        Alert.alert(
-          "Error!",
-          "The password you have entered is incorrect, please try again or reset your password"
-        );
-      } else if (error.code === "auth/too-many-requests") {
-        Alert.alert(
-          "Error!",
-          "You have entered an incorrect password too many times and your account has been temporarily disabled. Please try again after a few minutes or reset your password."
-        );
-      }
+        if (error.code === "auth/user-not-found") {
+          Alert.alert(
+            "Error!",
+            "You are not registered as a user. Please register"
+          );
+        } else if (error.code === "auth/wrong-password") {
+          Alert.alert(
+            "Error!",
+            "The password you have entered is incorrect, please try again or reset your password"
+          );
+        } else if (error.code === "auth/too-many-requests") {
+          Alert.alert(
+            "Error!",
+            "You have entered an incorrect password too many times and your account has been temporarily disabled. Please try again after a few minutes or reset your password."
+          );
+        }
 
-      console.log(error.message);
-    }
+        console.log(error.message);
+      });
   }
 
   //   Logout function
@@ -125,21 +138,29 @@ export function AuthProvider({ children }) {
   }
 
   // get user state
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(function (user) {
-      setCurrentUser(user);
 
-      setLoading(false);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setCurrentUser(user);
+        setStateLoader(true);
+      } else {
+        setCurrentUser(null);
+      }
     });
     return unsubscribe;
   }, []);
 
   if (currentUser) {
     // get user info
-    db.collection("users")
-      .doc(currentUser.uid)
-      .onSnapshot((doc) => {
+
+    const docRef = doc(db, "users", currentUser.uid);
+    const docSnap = getDoc(docRef)
+      .then((doc) => {
         setCountry(doc.data().country);
+      })
+      .catch((err) => {
+        console.log(err);
       });
   }
 
@@ -160,10 +181,27 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // App state boolean
+  const [userAppState, setUserAppState] = useState(true);
+
+  // delete user pin
+  const deleteUserPin = async () => {
+    try {
+      await AsyncStorage.removeItem("pin");
+    } catch (e) {
+      // remove error
+      console.log(e);
+    }
+
+    console.log("Done.");
+  };
+
+  // get user pin state
+  const [isPinEntered, setIsPinEntered] = useState(false);
+
   // Values
   const value = {
     loading,
-
     currentUser,
     signup,
     login,
@@ -171,8 +209,12 @@ export function AuthProvider({ children }) {
     resetPassword,
     country,
     verifiyUserEmail,
-    userIsVrified,
-    topUp,
+    userAppState,
+    setUserAppState,
+    stateLoader,
+    deleteUserPin,
+    setIsPinEntered,
+    isPinEntered,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

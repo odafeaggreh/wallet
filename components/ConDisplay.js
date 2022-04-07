@@ -10,6 +10,7 @@ import { useAuth } from "../context/AuthContext";
 import { db } from "../firebase";
 import "intl";
 import "intl/locale-data/jsonp/en";
+import { collection, getDocs } from "firebase/firestore";
 
 const ConDisplay = ({ getHoldings, myHoldings }) => {
   const { currentUser, verifiyUserEmail, loading, userIsVrified } = useAuth();
@@ -18,34 +19,23 @@ const ConDisplay = ({ getHoldings, myHoldings }) => {
   const [topUp, setTopUp] = useState(true);
 
   useEffect(() => {
+    console.log("current user", currentUser);
     if (currentUser) {
-      var docRef = db
-        .collection("users")
-        .doc(currentUser.uid)
-        .collection("holdings")
-        .doc("myHoldings");
+      const docRef = collection(db, "users", currentUser.uid, "holdings");
 
-      docRef
-        .get()
-        .then((doc) => {
-          if (doc.exists) {
-            // console.log("Document data:", doc.data());
-            const objData = doc.data();
-            // const arrData = Object.entries(objData).map((e) => e[1]);
-            const arrData = [objData].flat();
-            setFireHoldings(arrData);
+      const qSnap = getDocs(docRef)
+        .then((snap) => {
+          const objData = snap.docs.map((doc) => {
+            return doc.data();
+          });
 
-            setTopUp(true);
-          } else {
-            // doc.data() will be undefined in this case
-            console.log("No such document!");
-
-            setTopUp(false);
-          }
+          setFireHoldings(objData);
+          setTopUp(true);
         })
-        .catch((error) => {
-          console.log("Error getting document:", error);
-          setFireHoldings(error.message);
+        .catch((err) => {
+          console.log(err);
+          console.log("No such document!");
+
           setTopUp(false);
         });
     }

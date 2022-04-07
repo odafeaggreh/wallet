@@ -42,8 +42,6 @@ const Signup = ({ navigation }) => {
     }
   };
 
-  // const [loading, setLoading] = useState(false);
-
   const { signup, loading } = useAuth();
 
   return (

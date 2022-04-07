@@ -18,6 +18,8 @@ const Login = ({ navigation }) => {
 
   const { login, loading } = useAuth();
 
+  console.log("🔥 Login.js:", loading);
+
   const [showPassword, setShowPassword] = React.useState(true);
 
   const showUserPassword = (showPassword) => {

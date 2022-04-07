@@ -1,19 +1,21 @@
-import React, { useState } from "react";
-import { useEffect } from "react";
-import { auth } from "./firebase";
+import React, { useState, useEffect } from "react";
 import { SignedInSack, SignedOutStack } from "./navigation/nav";
-import { DrawerNavStack } from "./navigation/draw";
-import NavigationDrawer from "./components/NavigationDrawer";
 import { useAuth } from "./context/AuthContext";
-import ReactNativeBiometrics from "react-native-biometrics";
-import * as LocalAuthentication from "expo-local-authentication";
-import { Alert, View, Text } from "react-native";
-import * as RootNavigation from "./navigation/RootNavigation";
+import PinNavigation from "./PinNavigation";
+import AppLoading from "expo-app-loading";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "./firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
 
-const AuthNavigation = ({ navigation }) => {
-  const { currentUser } = useAuth();
+const AuthNavigation = () => {
+  const { currentUser, stateLoader } = useAuth();
+  const [appReady, setAppReady] = useState(false);
 
-  return <>{currentUser ? <SignedInSack /> : <SignedOutStack />}</>;
+  if (!stateLoader) {
+    return <AppLoading />;
+  } else {
+    return <>{currentUser ? <PinNavigation /> : <SignedOutStack />}</>;
+  }
 };
 
 export default AuthNavigation;

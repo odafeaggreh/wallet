@@ -68,7 +68,7 @@ const Setting = ({ title, value, type, onPress, icon, navigation }) => {
 
 const Profile = ({ navigation }) => {
   const [faceId, setFaceId] = React.useState(true);
-  const { currentUser, logout } = useAuth();
+  const { logout, currentUser, deleteUserPin } = useAuth();
 
   // Activity indicator state
   const [showIndicator, setShowIndicator] = useState(true);
@@ -131,6 +131,14 @@ const Profile = ({ navigation }) => {
                 onPress={logout}
                 icon={icons.power}
               />
+
+              <Setting
+                title="Delete Pin"
+                value=""
+                type="Button"
+                onPress={deleteUserPin}
+                icon={icons.power}
+              />
             </ScrollView>
           </View>
         </View>
@@ -143,7 +151,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    backgroundColor: "#5322e5",
+    backgroundColor: "#0c6cf2",
   },
   horizontal: {
     flexDirection: "row",

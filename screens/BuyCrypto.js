@@ -13,7 +13,6 @@ import * as Clipboard from "expo-clipboard";
 
 const BuyCrypto = ({ navigation }) => {
   const { currentUser } = useAuth();
-  const [loading, setLoading] = useState(false);
   const [walletId, setWalletId] = useState(currentUser.uid);
 
   const copyToClipboard = () => {

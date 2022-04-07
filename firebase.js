@@ -1,22 +1,29 @@
-import firebase from "firebase/compat/app";
-import "firebase/compat/auth";
-import "firebase/compat/firestore";
+// import firebase from "firebase/compat/app";
+import { initializeApp } from "firebase/app";
+import { initializeAuth } from "firebase/auth";
+import { getReactNativePersistence } from "firebase/auth/react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getFirestore } from "firebase/firestore";
+
+// import "firebase/compat/auth";
+// import "firebase/compat/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDAaSFXgwoJM15-8jG77uCNH8zjZMwBe5U",
-  authDomain: "blockchain-16f4c.firebaseapp.com",
-  projectId: "blockchain-16f4c",
-  storageBucket: "blockchain-16f4c.appspot.com",
-  messagingSenderId: "673920211067",
-  appId: "1:673920211067:web:39f63584d0eef0f1faeade",
+  apiKey: "AIzaSyCN2AheH_fLcTjHNKyLv7tqOujbmfonS0I",
+  authDomain: "rn-blockchain.firebaseapp.com",
+  projectId: "rn-blockchain",
+  storageBucket: "rn-blockchain.appspot.com",
+  messagingSenderId: "802897162818",
+  appId: "1:802897162818:web:d210a6b320276c9bb273db",
 };
 
-// Initialize Firebase
-const firebaseApp = firebase.initializeApp(firebaseConfig);
+const defaultApp = initializeApp(firebaseConfig);
 
-const db = firebaseApp.firestore();
+const auth = initializeAuth(defaultApp, {
+  persistence: getReactNativePersistence(AsyncStorage),
+});
 
-const auth = firebase.auth();
+const db = getFirestore(defaultApp);
 
-export { db, auth };
+export { auth, db };

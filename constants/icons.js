@@ -13,6 +13,7 @@ const plus = require("../assets/icons/plus.png");
 const padlock = require("../assets/icons/padlock.png");
 const power = require("../assets/icons/power.png");
 const buy = require("../assets/icons/buy.png");
+const logo = require("../assets/icons/logo.png");
 
 export default {
   briefcase,
@@ -30,4 +31,5 @@ export default {
   padlock,
   power,
   buy,
+  logo,
 };

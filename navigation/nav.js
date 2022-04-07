@@ -15,6 +15,8 @@ import AppBar from "../components/AppBar";
 import BuyCrypto from "../screens/BuyCrypto";
 import Withdraw from "../screens/Withdraw";
 import { navigationRef } from "./RootNavigation";
+import CreatePin from "../screens/CreatePin";
+import EnterPin from "../screens/EnterPin";
 
 const Stack = createStackNavigator();
 
@@ -50,6 +52,8 @@ export const SignedOutStack = () => (
           initialRouteName={"Login"}
         >
           <Stack.Screen name="Login" component={Login} />
+          <Stack.Screen name="CreatePin" component={CreatePin} />
+          <Stack.Screen name="EnterPin" component={EnterPin} />
           <Stack.Screen name="Signup" component={Signup} />
           <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
         </Stack.Navigator>
