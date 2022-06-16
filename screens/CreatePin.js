@@ -12,7 +12,6 @@ import { useAuth } from "../context/AuthContext";
 import { SignedInSack } from "../navigation/nav";
 
 const CreatePin = ({ navigation }) => {
-  console.log("Navigation", navigation);
   const pinView = useRef(null);
   const [showRemoveButton, setShowRemoveButton] = useState(false);
   const [enteredPin, setEnteredPin] = useState("");
@@ -68,7 +67,7 @@ const CreatePin = ({ navigation }) => {
       <>
         {/* Loading indicator */}
 
-        <Loader isLoading={isLoading} />
+        <Loader isLoading={isLoading} message="validating PIN..." />
         <SafeAreaView
           style={{
             flex: 1,

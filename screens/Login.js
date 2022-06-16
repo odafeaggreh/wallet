@@ -16,9 +16,7 @@ const Login = ({ navigation }) => {
       .min(6, "Your password should have at least 6 characters"),
   });
 
-  const { login, loading } = useAuth();
-
-  console.log("🔥 Login.js:", loading);
+  const { login, logInLoading } = useAuth();
 
   const [showPassword, setShowPassword] = React.useState(true);
 
@@ -151,8 +149,8 @@ const Login = ({ navigation }) => {
                     contentStyle={{ height: 40 }}
                     labelStyle={{ fontWeight: "bold", ...FONTS.h3 }}
                     color={isValid ? COLORS.lightBlueAccent : "#9ACAF7"}
-                    loading={loading}
-                    disabled={loading}
+                    loading={logInLoading}
+                    disabled={logInLoading}
                   >
                     Continue
                   </Button>

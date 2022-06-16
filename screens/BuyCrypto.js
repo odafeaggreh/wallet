@@ -1,13 +1,8 @@
-import { View, Text, Image, Linking, Alert } from "react-native";
+import { View, Text, Alert } from "react-native";
 import React, { useState } from "react";
-import { SIZES, COLORS, FONTS, dummyData, icons } from "../constants";
+import { SIZES, COLORS, FONTS } from "../constants";
 import { TextInput, Button, Surface } from "react-native-paper";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import { ErrorMessage, Formik, yupToFormErrors } from "formik";
-import * as Yup from "yup";
-import Validator from "email-validator";
 import SignupAppBar from "../components/SignupAppBar";
-import { db, auth } from "../firebase";
 import { useAuth } from "../context/AuthContext";
 import * as Clipboard from "expo-clipboard";
 
@@ -22,7 +17,7 @@ const BuyCrypto = ({ navigation }) => {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#f8f8fa" }}>
-      <SignupAppBar title="Transfer Crypto" navigation={navigation} />
+      <SignupAppBar title="Buy Crypto" navigation={navigation} />
 
       <View>
         <Surface

@@ -16,14 +16,12 @@ import { connect } from "react-redux";
 import { getHoldings, getCoinMarket } from "../stores/market/marketActions";
 import { useFocusEffect } from "@react-navigation/native";
 import { SIZES, COLORS, FONTS, dummyData, icons } from "../constants";
-import { BalanceInfo, IconTextButton, Charts } from "../components";
 import AppBar from "../components/AppBar";
 import "intl";
 import "intl/locale-data/jsonp/en";
 import ConDisplay from "../components/ConDisplay";
 import { LineChart } from "react-native-chart-kit";
 import DonutChart from "../components/DonutChart";
-import ChartPie from "../components/ChartPie";
 import { useAuth } from "../context/AuthContext";
 import { auth, db } from "../firebase";
 import { collection, getDocs } from "firebase/firestore";
@@ -36,39 +34,54 @@ const Home = ({
   navigation,
 }) => {
   const [selectedCoin, setSelectedCoin] = useState(null);
-  const { currentUser, verifiyUserEmail, loading } = useAuth();
+  const {
+    currentUser,
+    verifiyUserEmail,
+    globalCurrency,
+    setTotalWallet,
+    currencyAmount,
+    refreshing,
+    setRefreshing,
+    getMyHoldings,
+    fireHoldings,
+    homeTopUp,
+    skeleton,
+  } = useAuth();
 
-  const [fireHoldings, setFireHoldings] = useState();
-  const [topUp, setTopUp] = useState(true);
+  // Check if user email is verified
+  const isEmailVerified = () => {
+    if (currentUser) {
+      if (currentUser.emailVerified) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  };
+
+  // Refresh function
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    getCoinMarket();
+    getHoldings();
+    getMyHoldings();
+    isEmailVerified();
+    setRefreshing(false);
+  });
 
   useEffect(() => {
-    console.log("current user", currentUser);
     if (currentUser) {
-      const docRef = collection(db, "users", currentUser.uid, "holdings");
-
-      const qSnap = getDocs(docRef)
-        .then((snap) => {
-          const objData = snap.docs.map((doc) => {
-            return doc.data();
-          });
-
-          setFireHoldings(objData);
-          setTopUp(true);
-        })
-        .catch((err) => {
-          console.log(err);
-          console.log("No such document!");
-
-          setTopUp(false);
-        });
+      getMyHoldings();
     }
-  }, []);
+  }, [currentUser]);
 
   useFocusEffect(
     React.useCallback(() => {
-      getHoldings((myHoldings = fireHoldings));
-      getCoinMarket();
-    }, [fireHoldings])
+      getHoldings((myHoldings = fireHoldings), globalCurrency);
+      getCoinMarket(globalCurrency);
+    }, [fireHoldings, globalCurrency])
   );
 
   let priceColor =
@@ -79,67 +92,43 @@ const Home = ({
       : COLORS.red;
 
   let totalWallet = myHoldings.reduce((a, b) => a + (b.total || 0), 0);
+
+  if (totalWallet) {
+    setTotalWallet(totalWallet);
+  }
   let valueChange = myHoldings.reduce(
     (a, b) => a + (b.holding_value_change_7d || 0),
     0
   );
   let percChange = (valueChange / (totalWallet - valueChange)) * 100;
-  function numberToMoney(
-    amount,
-    simbol = "$",
-    decimalCount = 2,
-    decimal = ".",
-    thousands = ","
-  ) {
-    decimalCount = Math.abs(decimalCount);
-    decimalCount = isNaN(decimalCount) ? 2 : decimalCount;
 
-    const negativeSign = amount < 0 ? "-" : "";
-
-    const i = parseInt(
-      (amount = Math.abs(Number(amount) || 0).toFixed(decimalCount))
-    ).toString();
-    const j = i.length > 3 ? i.length % 3 : 0;
-
-    return (
-      simbol +
-      negativeSign +
-      (j ? i.substr(0, j) + thousands : "") +
-      i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + thousands) +
-      (decimalCount
-        ? decimal +
-          Math.abs(amount - i)
-            .toFixed(decimalCount)
-            .slice(2)
-        : "")
-    );
-  }
-
-  var formatter = new Intl.NumberFormat("en-US", {
+  var formatter = new Intl.NumberFormat("en-EN", {
     style: "currency",
-    currency: "USD",
+    currency: globalCurrency,
+    signDisplay: "always",
   });
 
   // Percentage color changer
 
   // Activity indicator state
+
+  const [loading, setLoading] = useState(true);
+
+  // Coin list state
+  useEffect(() => {
+    if (coins && coins.length > 0) {
+      setLoading(false);
+    } else if (myHoldings && myHoldings.length > 0) {
+      setLoading(false);
+    }
+  }, [coins, myHoldings]);
+
   const [showIndicator, setShowIndicator] = useState(true);
 
   useEffect(() => {
     setTimeout(() => {
       setShowIndicator(false);
     }, 5000);
-  });
-
-  const wait = (timeout) => {
-    return new Promise((resolve) => setTimeout(resolve, timeout));
-  };
-
-  const [refreshing, setRefreshing] = React.useState(false);
-
-  const onRefresh = React.useCallback(() => {
-    setRefreshing(true);
-    wait(2000).then(() => setRefreshing(false));
   }, []);
 
   return (
@@ -151,7 +140,7 @@ const Home = ({
       )}
 
       {!showIndicator && (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, backgroundColor: "#f8f8fa" }}>
           <AppBar title="Home" navigation={navigation} />
 
           <ScrollView
@@ -162,7 +151,7 @@ const Home = ({
             <View style={{ flex: 1, backgroundColor: "#f8f8fa" }}>
               {/* top crypto */}
 
-              {!currentUser.emailVerified && (
+              {!isEmailVerified() && (
                 <View style={{}}>
                   <Surface
                     style={{
@@ -223,7 +212,7 @@ const Home = ({
                 </View>
               )}
 
-              {!topUp && (
+              {!homeTopUp && (
                 <View
                   style={{
                     flex: 1,
@@ -336,7 +325,7 @@ const Home = ({
 
               {/* If user has active coins */}
 
-              {topUp && (
+              {homeTopUp && (
                 <View style={{ flex: 1 }}>
                   <Surface
                     style={{
@@ -361,7 +350,7 @@ const Home = ({
                       <PaperText
                         style={{ color: COLORS.lightGray3, ...FONTS.h2 }}
                       >
-                        {numberToMoney(totalWallet)}
+                        {formatter.format(totalWallet)}
                       </PaperText>
                       <PaperText style={{ color: priceColor, ...FONTS.h5 }}>
                         {" "}
@@ -394,6 +383,7 @@ function mapStateToProps(state) {
   return {
     myHoldings: state.marketReducer.myHoldings,
     coins: state.marketReducer.coins,
+    loading: state.marketReducer.loading,
   };
 }
 

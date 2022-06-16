@@ -5,7 +5,7 @@ import { FONTS, COLORS } from "../constants";
 const TabIcon = ({ focused, icon, iconStyle, label, isTrade }) => {
   const styles = StyleSheet.create({
     myIcons: {
-      width: 125,
+      width: 150,
       height: 25,
       tintColor: focused ? COLORS.lightBlueAccent : COLORS.lightGray3,
       ...iconStyle,
@@ -25,9 +25,8 @@ const TabIcon = ({ focused, icon, iconStyle, label, isTrade }) => {
           source={icon}
           resizeMode="contain"
           style={{
-            width: 125,
-            height: 40,
-            tintColor: COLORS.lightBlueAccent,
+            width: 150,
+            height: 50,
             ...iconStyle,
           }}
         />

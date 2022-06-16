@@ -15,7 +15,6 @@ const PinNavigation = ({ navigation }) => {
       await AsyncStorage.getItem("pin").then((value) => {
         if (value !== null) {
           setUserGetPin(value);
-          console.log("user pin: ", getUserPin);
         } else {
           setUserGetPin(null);
         }

@@ -21,8 +21,6 @@ const DonutChart = ({
   const strokeDashoffset =
     circleCircumference - (circleCircumference * percentage) / 100;
 
-  console.log(color);
-
   return (
     <View>
       <Svg

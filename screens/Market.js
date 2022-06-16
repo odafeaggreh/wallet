@@ -14,53 +14,36 @@ import { connect } from "react-redux";
 import { getCoinMarket } from "../stores/market/marketActions";
 import MainLayout from "./MainLayout";
 import { constants, COLORS, FONTS, SIZES, icons } from "../constants";
-import { HeaderBar, TextButton } from "../components";
 import AppBar from "../components/AppBar";
+import { useAuth } from "../context/AuthContext";
+import { useFocusEffect } from "@react-navigation/native";
 
 const Market = ({ getCoinMarket, coins, navigation }) => {
+  const { globalCurrency } = useAuth();
   const marketTabs = constants.marketTabs.map((marketTab) => ({
     ...marketTab,
     ref: React.createRef(),
   }));
 
-  useEffect(() => {
-    getCoinMarket();
-  }, [getCoinMarket]);
+  // useEffect(() => {
+  //   getCoinMarket(globalCurrency);
+  // }, [getCoinMarket, globalCurrency]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getCoinMarket(globalCurrency);
+    }, [globalCurrency])
+  );
 
   const scrollX = React.useRef(new Animated.Value(0)).current;
 
   const marketTabScrollViewRef = React.useRef();
 
-  function numberToMoney(
-    amount,
-    simbol = "$",
-    decimalCount = 2,
-    decimal = ".",
-    thousands = ","
-  ) {
-    decimalCount = Math.abs(decimalCount);
-    decimalCount = isNaN(decimalCount) ? 2 : decimalCount;
-
-    const negativeSign = amount < 0 ? "-" : "";
-
-    const i = parseInt(
-      (amount = Math.abs(Number(amount) || 0).toFixed(decimalCount))
-    ).toString();
-    const j = i.length > 3 ? i.length % 3 : 0;
-
-    return (
-      simbol +
-      negativeSign +
-      (j ? i.substr(0, j) + thousands : "") +
-      i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + thousands) +
-      (decimalCount
-        ? decimal +
-          Math.abs(amount - i)
-            .toFixed(decimalCount)
-            .slice(2)
-        : "")
-    );
-  }
+  var formatter = new Intl.NumberFormat("en-EN", {
+    style: "currency",
+    currency: globalCurrency,
+    signDisplay: "always",
+  });
 
   function renderList() {
     return (
@@ -112,6 +95,7 @@ const Market = ({ getCoinMarket, coins, navigation }) => {
                 <View style={{ flex: 1, alignItems: "center" }}>
                   <LineChart
                     withVerticalLabels={false}
+                    withShadow={false}
                     withHorizontalLabels={false}
                     withDots={false}
                     withInnerLines={false}
@@ -146,7 +130,7 @@ const Market = ({ getCoinMarket, coins, navigation }) => {
                   }}
                 >
                   <Text style={{ color: COLORS.black, ...FONTS.h4 }}>
-                    {numberToMoney(item.current_price)}
+                    {formatter.format(item.current_price)}
                   </Text>
 
                   <View
@@ -191,36 +175,19 @@ const Market = ({ getCoinMarket, coins, navigation }) => {
     );
   }
 
-  // Activity indicator state
-  const [showIndicator, setShowIndicator] = useState(true);
-
-  useEffect(() => {
-    setTimeout(() => {
-      setShowIndicator(false);
-    }, 5000);
-  });
-
   return (
     <MainLayout navigation={navigation}>
-      {showIndicator && (
-        <View style={[styles.container, styles.horizontal]}>
-          <ActivityIndicator size="large" color="#fff" />
+      <View style={{ flex: 1 }}>
+        <AppBar title="Market Prices" />
+        <View style={{ flex: 1, backgroundColor: "#f8f8fa" }}>
+          {/* Header */}
+
+          {/* Tab bar */}
+
+          {/* Market List */}
+          {renderList()}
         </View>
-      )}
-
-      {!showIndicator && (
-        <View style={{ flex: 1 }}>
-          <AppBar title="Market Prices" />
-          <View style={{ flex: 1, backgroundColor: "#f8f8fa" }}>
-            {/* Header */}
-
-            {/* Tab bar */}
-
-            {/* Market List */}
-            {renderList()}
-          </View>
-        </View>
-      )}
+      </View>
     </MainLayout>
   );
 };

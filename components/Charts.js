@@ -1,6 +1,5 @@
 import React from "react";
 import { View, Text } from "react-native";
-import { LineChart } from "react-native-wagmi-charts";
 import { SIZES, COLORS, FONTS } from "../constants";
 import {
   ChartDot,
@@ -12,7 +11,7 @@ import {
 } from "@rainbow-me/animated-charts";
 import moment from "moment";
 
-const Charts = ({ containerStyle, chartPrices }) => {
+const Charts = ({ containerStyle, chartPrices, coinData }) => {
   // Points
 
   let startUnixTimeStamp = moment().subtract(7, "day").unix();
@@ -100,10 +99,7 @@ const Charts = ({ containerStyle, chartPrices }) => {
         {/* getYAxisLabelValues */}
         {getYAxisLabelValues().map((item, index) => {
           return (
-            <Text
-              style={{ color: COLORS.lightGray3, ...FONTS.body4 }}
-              key={index}
-            >
+            <Text style={{ color: COLORS.black, ...FONTS.body4 }} key={index}>
               {item}
             </Text>
           );
@@ -151,14 +147,14 @@ const Charts = ({ containerStyle, chartPrices }) => {
               {/* Y-Lable */}
               <ChartYLabel
                 format={formatUSD}
-                style={{ color: COLORS.white, ...FONTS.body5 }}
+                style={{ color: COLORS.black, ...FONTS.body5 }}
               />
               {/* X-Lable */}
               <ChartXLabel
                 format={formatDateTime}
                 style={{
                   marginTop: 3,
-                  color: COLORS.lightGray3,
+                  color: COLORS.black,
                   ...FONTS.body5,
                   lineHeight: 15,
                 }}

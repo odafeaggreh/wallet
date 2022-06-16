@@ -80,7 +80,7 @@ const EnterPin = () => {
     <>
       {/* Loading indicator */}
 
-      <Loader isLoading={isLoading} />
+      <Loader isLoading={isLoading} message="Validating Pin..." />
       <View
         style={{
           flex: 1,

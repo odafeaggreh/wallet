@@ -1,5 +1,5 @@
 import axios from "axios";
-
+import { useState } from "react";
 export const GET_HOLDINGS_BEGIN = "GET_HOLDINGS_BEGIN";
 export const GET_HOLDINGS_SUCCESS = "GET_HOLDINGS_SUCCESS";
 export const GET_HOLDINGS_FAILURE = "GET_HOLDINGS_FAILURE";
@@ -25,7 +25,7 @@ export const getHoldimgsFailure = (error) => ({
 
 export function getHoldings(
   holdings = [],
-  currency = "usd",
+  currency = "USD",
   orderBy = "market_cap_desc",
   sparkline = true,
   priceChangePerc = "7d",

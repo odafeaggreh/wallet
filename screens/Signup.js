@@ -42,7 +42,7 @@ const Signup = ({ navigation }) => {
     }
   };
 
-  const { signup, loading } = useAuth();
+  const { signup, signInLoading } = useAuth();
 
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.white }}>
@@ -183,8 +183,8 @@ const Signup = ({ navigation }) => {
                     contentStyle={{ height: 40 }}
                     labelStyle={{ fontWeight: "bold", ...FONTS.h3 }}
                     color={isValid ? COLORS.lightBlueAccent : "#9ACAF7"}
-                    loading={loading}
-                    disabled={loading}
+                    loading={signInLoading}
+                    disabled={signInLoading}
                   >
                     Continue
                   </Button>

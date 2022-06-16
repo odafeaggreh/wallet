@@ -3,7 +3,9 @@ import AuthNavigation from "./AuthNavigation";
 import { useFonts } from "expo-font";
 import AppLoading from "expo-app-loading";
 import { AuthProvider } from "./context/AuthContext";
-import NavigationDrawer from "./components/NavigationDrawer";
+import { LogBox } from "react-native";
+
+LogBox.ignoreLogs(["Setting a timer"]);
 
 export default function App({ navigation }) {
   let [fontsLoaded] = useFonts({

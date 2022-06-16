@@ -10,13 +10,22 @@ import Tabs from "./tabs";
 import Login from "./../screens/Login";
 import Signup from "./../screens/Signup";
 import ForgotPassword from "../screens/ForgotPassword";
-import { Home } from "../screens";
+import { Home, Profile } from "../screens";
 import AppBar from "../components/AppBar";
 import BuyCrypto from "../screens/BuyCrypto";
 import Withdraw from "../screens/Withdraw";
 import { navigationRef } from "./RootNavigation";
 import CreatePin from "../screens/CreatePin";
 import EnterPin from "../screens/EnterPin";
+import MyTabs from "./newTabs";
+import tabs from "./tabs";
+import ChangePassword from "../screens/ChangePassword";
+import Swap from "../screens/Swap";
+import Send from "../screens/Send";
+import Bank from "../screens/Bank";
+import Crypto from "../screens/Crypto";
+import Buy from "../screens/Buy";
+import Sell from "../screens/Sell";
 
 const Stack = createStackNavigator();
 
@@ -32,9 +41,17 @@ export const SignedInSack = () => (
           }}
           initialRouteName={"MainLayout"}
         >
-          <Stack.Screen name="MainLayout" component={Tabs} />
+          <Stack.Screen name="MainLayout" component={MyTabs} />
           <Stack.Screen name="BuyCrypto" component={BuyCrypto} />
           <Stack.Screen name="Withdraw" component={Withdraw} />
+          <Stack.Screen name="password" component={ChangePassword} />
+          <Stack.Screen name="Profile" component={Profile} />
+          <Stack.Screen name="Swap" component={Swap} />
+          <Stack.Screen name="Send" component={Send} />
+          <Stack.Screen name="Bank" component={Bank} />
+          <Stack.Screen name="Crypto" component={Crypto} />
+          <Stack.Screen name="Buy" component={Buy} />
+          <Stack.Screen name="Sell" component={Sell} />
         </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>

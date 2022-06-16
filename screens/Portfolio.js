@@ -1,5 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { Button, Surface, Text as PaperText } from "react-native-paper";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Button,
+  Surface,
+  Text as PaperText,
+  TextInput,
+} from "react-native-paper";
 import {
   View,
   Text,
@@ -8,6 +13,9 @@ import {
   Image,
   ActivityIndicator,
   StyleSheet,
+  Animated,
+  ScrollView,
+  RefreshControl,
 } from "react-native";
 import { connect } from "react-redux";
 import { useFocusEffect } from "@react-navigation/native";
@@ -18,41 +26,189 @@ import { SIZES, COLORS, FONTS, dummyData, icons } from "../constants";
 import AppBar from "../components/AppBar";
 import { db } from "../firebase";
 import { useAuth } from "../context/AuthContext";
+import { collection, getDocs } from "firebase/firestore";
+import { Divider } from "react-native-paper";
+import BottomSheet from "reanimated-bottom-sheet";
 
 const Portfolio = ({ getHoldings, myHoldings, navigation }) => {
   const [selectedCoin, setSelectedCoin] = useState(null);
   const [fireHoldings, setFireHoldings] = useState();
   const [topUp, setTopUp] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const sheetRef = React.useRef(null);
 
-  const { currentUser } = useAuth();
+  const { currentUser, globalCurrency, refreshing, setRefreshing } = useAuth();
 
-  useEffect(() => {
-    console.log("current user", currentUser);
+  async function getMyHoldings() {
     if (currentUser) {
       const docRef = collection(db, "users", currentUser.uid, "holdings");
 
-      const qSnap = getDocs(docRef)
-        .then((snap) => {
-          const objData = snap.docs.map((doc) => {
-            return doc.data();
-          });
+      try {
+        const qSnap = await getDocs(docRef);
+        const objData = qSnap.docs.map((doc) => {
+          return doc.data();
+        });
 
+        if (objData === undefined) {
+          setFireHoldings([]);
+          console.log("No holdings");
+        } else if (objData.length === 0) {
+          setTopUp(false);
+        } else if (objData.length > 0) {
           setFireHoldings(objData);
           setTopUp(true);
-        })
-        .catch((err) => {
-          console.log(err);
-          console.log("No such document!");
-
-          setTopUp(false);
-        });
+        }
+      } catch (error) {
+        setHomeTopUp(false);
+        console.log(error);
+      }
     }
-  }, []);
+  }
+
+  useEffect(() => {
+    getMyHoldings();
+  }, [fireHoldings, currentUser, globalCurrency, refreshing]);
+
+  // Refresh function
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    getMyHoldings();
+    setRefreshing(false);
+  });
+
+  // Crypto details bottom sheet
+
+  const openBottomSheet = (item) => {
+    setSelectedCoin(item);
+    setModalOpen(true);
+  };
+
+  const renderHeader = (holdings) => {
+    return (
+      <View style={{ backgroundColor: COLORS.white, padding: 16, height: 150 }}>
+        <View
+          style={{
+            width: 30,
+            height: 3,
+            backgroundColor: COLORS.lightGray3,
+            alignSelf: "center",
+            marginBottom: 30,
+            borderRadius: SIZES.radius,
+          }}
+        />
+
+        <View
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Image
+            source={{ uri: holdings.image }}
+            style={{ width: 35, height: 35, marginBottom: 10 }}
+          />
+
+          <Text
+            style={{
+              color: COLORS.lightGray2,
+              fontWeight: "bold",
+              fontSize: 20,
+            }}
+          >
+            {holdings.name}
+          </Text>
+        </View>
+      </View>
+    );
+  };
+
+  const renderContent = () => {
+    return (
+      <View style={{ backgroundColor: COLORS.white }}>
+        {myHoldings && (
+          <Charts
+            containerStyle={{ marginVertical: SIZES.padding }}
+            coinData={myHoldings}
+            chartPrices={
+              selectedCoin
+                ? selectedCoin.sparkline_in_7d?.value
+                : myHoldings[0]?.sparkline_in_7d?.value
+            }
+          />
+        )}
+
+        <View style={{ marginVertical: SIZES.padding }}>
+          <Text
+            style={{
+              textAlign: "center",
+              marginVertical: SIZES.padding,
+              ...FONTS.h2,
+            }}
+          >
+            Buy {selectedCoin?.name}
+          </Text>
+          <View style={{ width: "80%", alignSelf: "center" }}>
+            <TextInput
+              label={`Buy ${selectedCoin?.name}`}
+              mode="outlined"
+              placeholder={`Enter Number of ${selectedCoin?.name} to Buy`}
+              outlineColor={COLORS.lightBlueAccent}
+              activeOutlineColor={COLORS.lightBlueAccent}
+            />
+
+            <Button
+              mode="contained"
+              onPress={() => console.log("Pressed")}
+              color={COLORS.lightBlueAccent}
+              uppercase={false}
+              contentStyle={{
+                color: COLORS.white,
+                flexDirection: "row-reverse",
+              }}
+              labelStyle={{
+                fontSize: 18,
+              }}
+              style={{
+                marginVertical: SIZES.padding,
+
+                alignSelf: "center",
+                paddingHorizontal: 30,
+                paddingVertical: 5,
+                elevation: 0,
+              }}
+            >
+              Buy
+            </Button>
+          </View>
+        </View>
+      </View>
+    );
+  };
+
+  useEffect(() => {
+    if (modalOpen) {
+      Animated.timing(modalAnimatedValue, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: false,
+      }).start();
+      sheetRef.current.snapTo(0);
+    } else {
+      Animated.timing(modalAnimatedValue, {
+        toValue: 0,
+        duration: 500,
+        useNativeDriver: false,
+      }).start();
+    }
+  }, [modalOpen]);
+
+  const modalAnimatedValue = useRef(new Animated.Value(0)).current;
 
   useFocusEffect(
     React.useCallback(() => {
-      getHoldings((myHoldings = fireHoldings));
-    }, [fireHoldings])
+      getHoldings((myHoldings = fireHoldings), globalCurrency);
+    }, [fireHoldings, globalCurrency])
   );
 
   let totalWallet = myHoldings.reduce((a, b) => a + (b.total || 0), 0);
@@ -62,73 +218,20 @@ const Portfolio = ({ getHoldings, myHoldings, navigation }) => {
   );
   let percChange = (valueChange / (totalWallet - valueChange)) * 100;
 
-  function renderCurrentBalanceSection() {
-    return (
-      <View
-        style={{
-          paddingHorizontal: SIZES.padding,
-          borderBottomLeftRadius: 25,
-          borderBottomRightRadius: 25,
-          backgroundColor: COLORS.gray,
-        }}
-      >
-        <Text
-          style={{ marginTop: 50, color: COLORS.white, ...FONTS.largeTitle }}
-        >
-          Portfolio
-        </Text>
-        <BalanceInfo
-          title="Current Balance"
-          displayAmount={totalWallet}
-          changePercentage={percChange}
-          containerStyle={{
-            marginTop: SIZES.radius,
-            marginBottom: SIZES.padding,
-          }}
-        />
-      </View>
-    );
-  }
+  // Convert to currency
+  var formatter = new Intl.NumberFormat("en-EN", {
+    style: "currency",
+    currency: globalCurrency,
+    signDisplay: "always",
+  });
 
-  function numberToMoney(
-    amount,
-    simbol = "$",
-    decimalCount = 2,
-    decimal = ".",
-    thousands = ","
-  ) {
-    decimalCount = Math.abs(decimalCount);
-    decimalCount = isNaN(decimalCount) ? 2 : decimalCount;
-
-    const negativeSign = amount < 0 ? "-" : "";
-
-    const i = parseInt(
-      (amount = Math.abs(Number(amount) || 0).toFixed(decimalCount))
-    ).toString();
-    const j = i.length > 3 ? i.length % 3 : 0;
-
-    return (
-      simbol +
-      negativeSign +
-      (j ? i.substr(0, j) + thousands : "") +
-      i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + thousands) +
-      (decimalCount
-        ? decimal +
-          Math.abs(amount - i)
-            .toFixed(decimalCount)
-            .slice(2)
-        : "")
-    );
-  }
-
-  // Activity indicator state
   const [showIndicator, setShowIndicator] = useState(true);
 
   useEffect(() => {
     setTimeout(() => {
       setShowIndicator(false);
     }, 5000);
-  });
+  }, []);
 
   return (
     <MainLayout navigation={navigation}>
@@ -139,290 +242,321 @@ const Portfolio = ({ getHoldings, myHoldings, navigation }) => {
       )}
 
       {!showIndicator && (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, backgroundColor: "#fff" }}>
           <AppBar title="Portfolio" />
-          {!topUp && (
-            <View
-              style={{
-                flex: 1,
-                width: SIZES.width,
-                height: SIZES.height / 2,
-                padding: SIZES.padding,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              {/* Welcome */}
-              <Text
-                style={{
-                  width: SIZES.width,
-                  ...FONTS.h2,
-                  textAlign: "center",
-                  padding: SIZES.padding,
-                  color: COLORS.gray1,
-                }}
-              >
-                Welcome to Blockchain.com!
-              </Text>
-
-              {/* Subheading */}
-              <Text
-                style={{
-                  width: SIZES.width,
-                  ...FONTS.body3,
-                  textAlign: "center",
-                  paddingHorizontal: SIZES.padding,
-                  color: COLORS.lightGray3,
-                }}
-              >
-                All your crypto balances will show up here once you buy or
-                receive.
-              </Text>
-
-              {/* Buy crypto */}
-              <Button
-                mode="contained"
-                onPress={() => navigation.push("BuyCrypto")}
-                style={{
-                  width: "100%",
-                  margin: 10,
-                  paddingVertical: 5,
-                }}
-                labelStyle={{
-                  ...FONTS.h3,
-                }}
-                color={COLORS.lightBlueAccent}
-                uppercase={false}
-              >
-                Add Crypto
-              </Button>
-
-              {/* Receive / Deposit btn */}
+          <ScrollView
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+          >
+            {!topUp && (
               <View
                 style={{
-                  flexDirection: "row",
-                  justifyContent: "space-around",
-                  borderWidth: 1,
-                  borderRadius: 2,
-                  borderColor: "#d7dce1",
-                  width: "100%",
+                  flex: 1,
+                  width: SIZES.width,
+                  height: SIZES.height / 2,
+                  padding: SIZES.padding,
+                  justifyContent: "center",
+                  alignItems: "center",
                 }}
               >
+                {/* Welcome */}
+                <Text
+                  style={{
+                    width: SIZES.width,
+                    ...FONTS.h2,
+                    textAlign: "center",
+                    padding: SIZES.padding,
+                    color: COLORS.gray1,
+                  }}
+                >
+                  Welcome to Blockchain.com!
+                </Text>
+
+                {/* Subheading */}
+                <Text
+                  style={{
+                    width: SIZES.width,
+                    ...FONTS.body3,
+                    textAlign: "center",
+                    paddingHorizontal: SIZES.padding,
+                    color: COLORS.lightGray3,
+                  }}
+                >
+                  All your crypto balances will show up here once you buy or
+                  receive.
+                </Text>
+
+                {/* Buy crypto */}
                 <Button
-                  mode="outlined"
+                  mode="contained"
                   onPress={() => navigation.push("BuyCrypto")}
                   style={{
-                    width: "50%",
-                    margin: 3,
-                    borderLeftWidth: 0,
-                    borderTopWidth: 0,
-                    borderBottomWidth: 0,
-                    borderRadius: 0,
-                    borderColor: "#d7dce1",
+                    width: "100%",
+                    margin: 10,
+                    paddingVertical: 5,
                   }}
                   labelStyle={{
-                    ...FONTS.h4,
+                    ...FONTS.h3,
                   }}
                   color={COLORS.lightBlueAccent}
                   uppercase={false}
                 >
-                  Transfer
+                  Add Crypto
                 </Button>
-                <Button
-                  mode="outlined"
-                  onPress={() => navigation.push("Withdraw")}
+
+                {/* Receive / Deposit btn */}
+                <View
                   style={{
-                    width: "50%",
-                    margin: 3,
-                    borderLeftWidth: 0,
-                    borderTopWidth: 0,
-                    borderBottomWidth: 0,
-                    borderRightWidth: 0,
-                    borderRadius: 0,
+                    flexDirection: "row",
+                    justifyContent: "space-around",
+                    borderWidth: 1,
+                    borderRadius: 2,
+                    borderColor: "#d7dce1",
+                    width: "100%",
                   }}
-                  labelStyle={{
-                    ...FONTS.h4,
-                  }}
-                  color={COLORS.lightBlueAccent}
-                  uppercase={false}
                 >
-                  Withdraw
-                </Button>
+                  <Button
+                    mode="outlined"
+                    onPress={() => navigation.push("BuyCrypto")}
+                    style={{
+                      width: "50%",
+                      margin: 3,
+                      borderLeftWidth: 0,
+                      borderTopWidth: 0,
+                      borderBottomWidth: 0,
+                      borderRadius: 0,
+                      borderColor: "#d7dce1",
+                    }}
+                    labelStyle={{
+                      ...FONTS.h4,
+                    }}
+                    color={COLORS.lightBlueAccent}
+                    uppercase={false}
+                  >
+                    Transfer
+                  </Button>
+                  <Button
+                    mode="outlined"
+                    onPress={() => navigation.push("Withdraw")}
+                    style={{
+                      width: "50%",
+                      margin: 3,
+                      borderLeftWidth: 0,
+                      borderTopWidth: 0,
+                      borderBottomWidth: 0,
+                      borderRightWidth: 0,
+                      borderRadius: 0,
+                    }}
+                    labelStyle={{
+                      ...FONTS.h4,
+                    }}
+                    color={COLORS.lightBlueAccent}
+                    uppercase={false}
+                  >
+                    Withdraw
+                  </Button>
+                </View>
               </View>
-            </View>
-          )}
+            )}
 
-          {topUp && (
-            <View style={{ flex: 1, backgroundColor: "#f8f8fa" }}>
-              {/* Header section */}
-              {/* {renderCurrentBalanceSection()} */}
-
-              {/* Chart section */}
-              <Charts
-                containerStyle={{ marginTop: SIZES.radius }}
-                chartPrices={
-                  selectedCoin
-                    ? selectedCoin.sparkline_in_7d?.value
-                    : myHoldings[0].sparkline_in_7d?.value
-                }
-              />
-
-              {/* Portfolio section */}
-              <FlatList
-                data={myHoldings}
-                keyExtractor={(item) => item.id}
-                contentContainerStyle={{
-                  marginTop: SIZES.padding,
-                  paddingHorizontal: SIZES.padding,
-                }}
-                ListHeaderComponent={
-                  <View>
-                    <Text style={{ ...FONTS.h2, color: COLORS.lightGray3 }}>
-                      Your Assets
-                    </Text>
-
-                    <View
-                      style={{ flexDirection: "row", marginTop: SIZES.radius }}
-                    >
-                      <Text style={{ flex: 1, color: COLORS.lightGray3 }}>
-                        Assets
-                      </Text>
-                      <Text
-                        style={{
-                          flex: 1,
-                          color: COLORS.lightGray3,
-                          textAlign: "right",
-                        }}
-                      >
-                        Price
-                      </Text>
-                      <Text
-                        style={{
-                          flex: 1,
-                          color: COLORS.lightGray3,
-                          textAlign: "right",
-                        }}
-                      >
-                        Holdings
-                      </Text>
-                    </View>
-                  </View>
-                }
-                renderItem={({ item }) => {
-                  let priceColor =
-                    item.price_change_percentage_7d_in_currency == 0
-                      ? COLORS.lightGray3
-                      : item.price_change_percentage_7d_in_currency > 0
-                      ? COLORS.lightGreen
-                      : COLORS.red;
-                  return (
-                    <TouchableOpacity
-                      style={{ flexDirection: "row", height: 55 }}
-                      onPress={() => setSelectedCoin(item)}
-                    >
+            {topUp && (
+              <View style={{ flex: 1, backgroundColor: "#fff" }}>
+                {/* Portfolio section */}
+                <FlatList
+                  data={myHoldings}
+                  keyExtractor={(item) => item.id}
+                  contentContainerStyle={{
+                    marginTop: SIZES.padding,
+                  }}
+                  ListHeaderComponent={
+                    <View>
                       <View
                         style={{
-                          flex: 1,
                           flexDirection: "row",
-                          alignItems: "center",
+                          paddingHorizontal: SIZES.padding,
+                          marginTop: SIZES.radius,
+                          marginBottom: 20,
                         }}
                       >
-                        <Image
-                          source={{ uri: item.image }}
-                          style={{ width: 20, height: 20 }}
-                        />
+                        <Text style={{ flex: 1, color: COLORS.black }}>
+                          Asset Name
+                        </Text>
                         <Text
                           style={{
-                            marginLeft: SIZES.radius,
-                            color: COLORS.lightGray3,
-                            ...FONTS.h4,
+                            flex: 1,
+                            color: COLORS.black,
+                            textAlign: "right",
                           }}
                         >
-                          {item.name}
+                          Price
+                        </Text>
+                        <Text
+                          style={{
+                            flex: 1,
+                            color: COLORS.black,
+                            textAlign: "right",
+                          }}
+                        >
+                          Holdings
                         </Text>
                       </View>
-
-                      <View style={{ flex: 1, justifyContent: "center" }}>
-                        <Text
-                          style={{
-                            textAlign: "right",
-                            color: COLORS.lightGray3,
-                            ...FONTS.h4,
-                            lineHeight: 15,
-                          }}
-                        >
-                          {numberToMoney(item.current_price)}
-                        </Text>
-
-                        <View
+                      <Divider style={{ marginBottom: 20 }} />
+                    </View>
+                  }
+                  renderItem={({ item }) => {
+                    let priceColor =
+                      item.price_change_percentage_7d_in_currency == 0
+                        ? COLORS.lightGray3
+                        : item.price_change_percentage_7d_in_currency > 0
+                        ? COLORS.lightGreen
+                        : COLORS.red;
+                    return (
+                      <>
+                        <TouchableOpacity
                           style={{
                             flexDirection: "row",
-                            alignItems: "center",
-                            justifyContent: "flex-end",
+                            height: 55,
+                            paddingHorizontal: SIZES.padding,
                           }}
+                          onPress={() => openBottomSheet(item)}
                         >
-                          {item.price_change_percentage_7d_in_currency != 0 && (
-                            <Image
-                              source={icons.upArrow}
-                              style={{
-                                height: 10,
-                                width: 10,
-                                tintColor: priceColor,
-                                transform:
-                                  item.price_change_percentage_7d_in_currency >
-                                  0
-                                    ? [{ rotate: "45deg" }]
-                                    : [{ rotate: "125deg" }],
-                              }}
-                            />
-                          )}
-
-                          <Text
+                          <View
                             style={{
-                              marginLeft: 5,
-                              color: priceColor,
-                              ...FONTS.body5,
-                              lineHeight: 15,
+                              flex: 1,
+                              flexDirection: "row",
+                              alignItems: "flex-start",
                             }}
                           >
-                            {item.price_change_percentage_7d_in_currency.toFixed(
-                              2
-                            )}
-                            %
-                          </Text>
-                        </View>
-                      </View>
+                            <Image
+                              source={{ uri: item.image }}
+                              style={{ width: 25, height: 25 }}
+                            />
+                            <Text
+                              style={{
+                                marginLeft: SIZES.radius,
+                                color: COLORS.lightGray3,
+                                ...FONTS.h4,
+                              }}
+                            >
+                              {item.name}
+                            </Text>
+                          </View>
 
-                      <View style={{ flex: 1, justifyContent: "center" }}>
-                        <Text
-                          style={{
-                            textAlign: "right",
-                            color: COLORS.lightGray3,
-                            ...FONTS.h4,
-                            lineHeight: 15,
-                          }}
-                        >
-                          {numberToMoney(item.total)}
-                        </Text>
+                          <View style={{ flex: 1, justifyContent: "center" }}>
+                            <Text
+                              style={{
+                                textAlign: "right",
+                                color: COLORS.lightGray3,
+                                ...FONTS.h4,
+                                lineHeight: 15,
+                              }}
+                            >
+                              {formatter.format(item.current_price)}
+                            </Text>
 
-                        <Text
-                          style={{
-                            textAlign: "right",
-                            color: COLORS.lightGray3,
-                            ...FONTS.body5,
-                            lineHeight: 15,
-                          }}
-                        >
-                          {item.qty} {item.symbol.toUpperCase()}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  );
-                }}
-              />
-            </View>
-          )}
+                            <View
+                              style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                                justifyContent: "flex-end",
+                              }}
+                            >
+                              {item.price_change_percentage_7d_in_currency !=
+                                0 && (
+                                <Image
+                                  source={icons.upArrow}
+                                  style={{
+                                    height: 10,
+                                    width: 10,
+                                    tintColor: priceColor,
+                                    transform:
+                                      item.price_change_percentage_7d_in_currency >
+                                      0
+                                        ? [{ rotate: "45deg" }]
+                                        : [{ rotate: "125deg" }],
+                                  }}
+                                />
+                              )}
+
+                              <Text
+                                style={{
+                                  marginLeft: 5,
+                                  color: priceColor,
+                                  ...FONTS.body5,
+                                  lineHeight: 15,
+                                }}
+                              >
+                                {item.price_change_percentage_7d_in_currency.toFixed(
+                                  2
+                                )}
+                                %
+                              </Text>
+                            </View>
+                          </View>
+
+                          <View style={{ flex: 1, justifyContent: "center" }}>
+                            <Text
+                              style={{
+                                textAlign: "right",
+                                color: COLORS.lightGray3,
+                                ...FONTS.h4,
+                                lineHeight: 15,
+                              }}
+                            >
+                              {formatter.format(item.total)}
+                            </Text>
+
+                            <Text
+                              style={{
+                                textAlign: "right",
+                                color: COLORS.lightGray3,
+                                ...FONTS.body5,
+                                lineHeight: 15,
+                              }}
+                            >
+                              {item.qty} {item.symbol.toUpperCase()}
+                            </Text>
+                          </View>
+                        </TouchableOpacity>
+                        <Divider style={{ marginBottom: 20 }} />
+                      </>
+                    );
+                  }}
+                  ListFooterComponent={
+                    <View style={{ marginBottom: 50 }}></View>
+                  }
+                />
+              </View>
+            )}
+          </ScrollView>
         </View>
+      )}
+
+      {modalOpen && (
+        <>
+          <Animated.View
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: COLORS.transparentBlack,
+            }}
+            opacity={modalAnimatedValue}
+          />
+
+          <BottomSheet
+            ref={sheetRef}
+            snapPoints={[650, 650, 0]}
+            borderRadius={0}
+            renderContent={renderContent}
+            onCloseEnd={() => setModalOpen(false)}
+            enabledInnerScrolling={true}
+            renderHeader={() => renderHeader(selectedCoin)}
+          />
+        </>
       )}
     </MainLayout>
   );

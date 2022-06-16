@@ -14,12 +14,14 @@ class Loader extends Component {
     super(props);
     this.state = {
       isLoading: this.props.isLoading,
+      message: this.props.message,
     };
   }
 
   static getDerivedStateFromProps(nextProps) {
     return {
       isLoading: nextProps.isLoading,
+      message: nextProps.message,
     };
   }
 
@@ -35,7 +37,7 @@ class Loader extends Component {
         <View style={styles.modalBackground}>
           <View style={styles.activityIndicatorWrapper}>
             <View>
-              <Text style={{ ...FONTS.body2 }}>validating PIN...</Text>
+              <Text style={{ ...FONTS.body2 }}>{this.state.message}</Text>
             </View>
             <ActivityIndicator
               animating={this.state.isLoading}

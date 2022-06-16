@@ -29,21 +29,18 @@ const marketReducer = (state = initialState, action) => {
     case marketActions.GET_COIN_MARKET_BEGIN:
       return {
         ...state,
-        loading: true,
       };
 
     case marketActions.GET_COIN_MARKET_SUCCESS:
       return {
         ...state,
         coins: action.payload.coins,
-        loading: false,
       };
 
     case marketActions.GET_COIN_MARKET_FAILURE:
       return {
         ...state,
         error: action.payload.error,
-        loading: false,
       };
     default:
       return state;

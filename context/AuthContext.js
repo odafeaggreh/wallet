@@ -5,9 +5,22 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   onAuthStateChanged,
+  updatePassword,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  sendEmailVerification,
 } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { collection, getDocs, doc, getDoc, setDoc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  setDoc,
+  query,
+  orderBy,
+  addDoc,
+} from "firebase/firestore";
 
 const AuthContext = React.createContext();
 
@@ -20,12 +33,14 @@ export function AuthProvider({ children }) {
   const [asyncCurrentUser, setAsyncCurrentUser] = useState();
   const [country, setCountry] = useState();
   const [loading, setLoading] = useState(false);
+  const [signInLoading, setSignInLoading] = useState(false);
+  const [logInLoading, setLogInLoading] = useState(false);
   const [stateLoader, setStateLoader] = useState(false);
 
   // Signup function
   async function signup(email, password, country) {
     try {
-      setLoading(true);
+      setSignInLoading(true);
       const authUsers = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -38,6 +53,11 @@ export function AuthProvider({ children }) {
           owner_uid: authUsers.user.uid,
           email: authUsers.user.email,
           country: country,
+          created_at: new Date().toISOString(),
+          localCurrency: {
+            code: "USD",
+            name: "US Dollar",
+          },
         },
         { merge: true }
       );
@@ -47,7 +67,7 @@ export function AuthProvider({ children }) {
         email
       );
     } catch (error) {
-      setLoading(false);
+      setSignInLoading(false);
 
       if (error.code === "auth/weak-password") {
         Alert.alert(
@@ -71,14 +91,14 @@ export function AuthProvider({ children }) {
   // Login function
 
   function login(email, password) {
-    setLoading(true);
+    setLogInLoading(true);
     const authUsers = signInWithEmailAndPassword(auth, email, password)
       .then(() => {
-        setLoading(false);
+        setLogInLoading(false);
         console.log("🔥 firebase login successful");
       })
       .catch((error) => {
-        setLoading(false);
+        setLogInLoading(false);
 
         if (error.code === "auth/user-not-found") {
           Alert.alert(
@@ -139,6 +159,10 @@ export function AuthProvider({ children }) {
 
   // get user state
 
+  // Currency info from DB
+  const [code, setCode] = useState();
+  const [name, setName] = useState();
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -158,6 +182,8 @@ export function AuthProvider({ children }) {
     const docSnap = getDoc(docRef)
       .then((doc) => {
         setCountry(doc.data().country);
+        setCode(doc.data().localCurrency.code);
+        setName(doc.data().localCurrency.name);
       })
       .catch((err) => {
         console.log(err);
@@ -168,7 +194,7 @@ export function AuthProvider({ children }) {
   async function verifiyUserEmail() {
     try {
       setLoading(true);
-      await currentUser.sendEmailVerification();
+      await sendEmailVerification(auth.currentUser);
       Alert.alert(
         "Email sent!",
         "check your inbox to verify your email address and login once more"
@@ -188,8 +214,9 @@ export function AuthProvider({ children }) {
   const deleteUserPin = async () => {
     try {
       await AsyncStorage.removeItem("pin");
+      Alert.alert("Success!", "Your pin has been deleted");
     } catch (e) {
-      // remove error
+      Alert.alert("Error!", "An error has occurred. Please try again.");
       console.log(e);
     }
 
@@ -198,6 +225,113 @@ export function AuthProvider({ children }) {
 
   // get user pin state
   const [isPinEntered, setIsPinEntered] = useState(false);
+
+  const [reAuthResults, setReAuthResults] = useState();
+
+  // Reauthenticate user
+  async function reauthenticateUser(userProvidedPassword) {
+    const credential = EmailAuthProvider.credential(
+      auth.currentUser.email,
+      userProvidedPassword
+    );
+
+    return (result = await reauthenticateWithCredential(
+      auth.currentUser,
+      credential
+    ));
+  }
+
+  // Update user password
+  async function upDateUserPassword(user, newPassword) {
+    try {
+      setLoading(true);
+      await updatePassword(user, newPassword);
+
+      alert("Password updated successfully");
+      setLoading(false);
+    } catch (err) {
+      setLoading(false);
+      console.log(err.message);
+
+      if (err.code === "auth/requires-recent-login") {
+        alert("Please logout and login again to update your password");
+      } else if (err.code === "auth/weak-password") {
+        alert("Password should contain a minimum of 6 characters");
+      } else {
+        alert("An error has occurred. Please try again.");
+      }
+    }
+  }
+
+  const [globalCurrency, setGlobalCurrency] = useState("USD");
+  const [currencyName, setCurrencyName] = useState("US Dollar");
+  const [currencyAmount, setCurrencyAmount] = useState(1);
+  const [totalWallet, setTotalWallet] = useState(0);
+
+  useEffect(() => {
+    if (code) {
+      setGlobalCurrency(code);
+      setCurrencyName(name);
+    }
+  }, [code, name]);
+
+  // get transactions
+  const [transactions, setTransactions] = useState([]);
+  const [topUp, setTopUp] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  async function getTransactions() {
+    if (currentUser) {
+      const docRef = collection(db, "users", currentUser.uid, "transactions");
+      const q = query(docRef, orderBy("date"));
+
+      const qSnap = getDocs(query(docRef, orderBy("date", "desc")))
+        .then((snapshot) => {
+          const objData = snapshot.docs.map((doc) => {
+            return doc.data();
+          });
+
+          setTransactions(objData);
+          if (objData.length === 0) {
+            setTopUp(true);
+          } else if (objData.length > 0) {
+            setTopUp(false);
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }
+
+  // Home page holdngs
+  const [fireHoldings, setFireHoldings] = useState([]);
+  const [homeTopUp, setHomeTopUp] = useState(false);
+  const [skeleton, setSkeleton] = useState(true);
+
+  async function getMyHoldings() {
+    if (currentUser) {
+      const docRef = collection(db, "users", currentUser.uid, "holdings");
+
+      try {
+        const qSnap = await getDocs(docRef);
+        const objData = qSnap.docs.map((doc) => {
+          return doc.data();
+        });
+
+        if (objData.length > 0) {
+          setHomeTopUp(true);
+        } else {
+          setHomeTopUp(false);
+        }
+
+        setFireHoldings(objData);
+      } catch (error) {
+        setHomeTopUp(false);
+        console.log(error);
+      }
+    }
+  }
 
   // Values
   const value = {
@@ -215,6 +349,25 @@ export function AuthProvider({ children }) {
     deleteUserPin,
     setIsPinEntered,
     isPinEntered,
+    upDateUserPassword,
+    globalCurrency,
+    setGlobalCurrency,
+    currencyName,
+    setCurrencyName,
+    setTotalWallet,
+    currencyAmount,
+    transactions,
+    topUp,
+    getTransactions,
+    transactions,
+    refreshing,
+    setRefreshing,
+    setFireHoldings,
+    getMyHoldings,
+    fireHoldings,
+    homeTopUp,
+    signInLoading,
+    logInLoading,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

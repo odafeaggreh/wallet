@@ -1,7 +1,7 @@
 import { Text, View, FlatList, Image, ScrollView } from "react-native";
-import React, { Component, useState, useEffect } from "react";
-import { Button, Surface, Text as PaperText } from "react-native-paper";
-import { SIZES, COLORS, FONTS, dummyData, icons } from "../constants";
+import React, { useState, useEffect } from "react";
+import { Surface } from "react-native-paper";
+import { SIZES, COLORS, FONTS, icons } from "../constants";
 import { connect } from "react-redux";
 import { useFocusEffect } from "@react-navigation/native";
 import { getHoldings } from "../stores/market/marketActions";
@@ -13,13 +13,12 @@ import "intl/locale-data/jsonp/en";
 import { collection, getDocs } from "firebase/firestore";
 
 const ConDisplay = ({ getHoldings, myHoldings }) => {
-  const { currentUser, verifiyUserEmail, loading, userIsVrified } = useAuth();
+  const { currentUser, globalCurrency } = useAuth();
 
   const [fireHoldings, setFireHoldings] = useState();
   const [topUp, setTopUp] = useState(true);
 
   useEffect(() => {
-    console.log("current user", currentUser);
     if (currentUser) {
       const docRef = collection(db, "users", currentUser.uid, "holdings");
 
@@ -56,7 +55,7 @@ const ConDisplay = ({ getHoldings, myHoldings }) => {
 
   var formatter = new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "USD",
+    currency: globalCurrency,
   });
 
   return (
@@ -135,6 +134,7 @@ const ConDisplay = ({ getHoldings, myHoldings }) => {
                 >
                   <LineChart
                     withVerticalLabels={false}
+                    withShadow={false}
                     withHorizontalLabels={false}
                     withDots={false}
                     withInnerLines={false}
