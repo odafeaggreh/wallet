@@ -17,7 +17,7 @@ const BuyCrypto = ({ navigation }) => {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#f8f8fa" }}>
-      <SignupAppBar title="Buy Crypto" navigation={navigation} />
+      <SignupAppBar title="Add Crypto" navigation={navigation} />
 
       <View>
         <Surface

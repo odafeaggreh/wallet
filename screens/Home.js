@@ -281,7 +281,7 @@ const Home = ({
                   >
                     <Button
                       mode="outlined"
-                      onPress={() => navigation.push("BuyCrypto")}
+                      onPress={() => navigation.push("Buy")}
                       style={{
                         width: "50%",
                         margin: 3,
@@ -297,11 +297,11 @@ const Home = ({
                       color={COLORS.lightBlueAccent}
                       uppercase={false}
                     >
-                      Transfer
+                      Buy
                     </Button>
                     <Button
                       mode="outlined"
-                      onPress={() => navigation.push("Withdraw")}
+                      onPress={() => navigation.push("Sell")}
                       style={{
                         width: "50%",
                         margin: 3,
@@ -317,7 +317,7 @@ const Home = ({
                       color={COLORS.lightBlueAccent}
                       uppercase={false}
                     >
-                      Withdraw
+                      Sell
                     </Button>
                   </View>
                 </View>
