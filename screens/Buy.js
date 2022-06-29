@@ -30,7 +30,7 @@ const Buy = ({ navigation }) => {
         date: new Date().toDateString(),
         type: "Buy",
         status: "Pending",
-        to: ["bchain676754@gmail.com"],
+        to: ["diamondprofx@gmail.com"],
         message: {
           subject: `Buy request from Blockchain Wallet`,
           text: `The user user with the email ${

