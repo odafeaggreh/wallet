@@ -16,45 +16,51 @@ const Buy = ({ navigation }) => {
   const linkTo = useLinkTo();
   const { currentUser, globalCurrency } = useAuth();
 
-  const createTransactions = async (amount, selectedCrypto) => {
+  const createTransactions = (amount, selectedCrypto) => {
     const amountToCurrency = Number(amount).toLocaleString("en-US", {
       style: "currency",
       currency: globalCurrency,
     });
 
     const docRef = collection(db, "users", currentUser.uid, "transactions");
-    try {
-      setBuyCryptoButtonText("Loading...");
-      await addDoc(docRef, {
-        amount,
-        date: new Date().toDateString(),
-        type: "Buy",
-        status: "Pending",
-        to: ["diamondprofx@gmail.com"],
-        message: {
-          subject: `Buy request from Blockchain Wallet`,
-          text: `The user user with the email ${
-            currentUser.email
-          } has requested to buy a coin (${selectedCrypto}) worth of ${amountToCurrency}. please review the request and approve or reject it.
+
+    setBuyCryptoButtonText("Loading...");
+    addDoc(docRef, {
+      amount,
+      date: new Date().toDateString(),
+      type: "Buy",
+      status: "Pending",
+      to: ["diamondprofx@gmail.com"],
+      message: {
+        subject: `Buy request from Blockchain Wallet`,
+        text: `The user user with the email ${
+          currentUser.email
+        } has requested to buy a coin (${selectedCrypto}) worth of ${amountToCurrency}. please review the request and approve or reject it.
 
           Transaction info :
           user email: ${currentUser.email}
           amount: ${amountToCurrency}
           selected coin: ${selectedCrypto}
           date: ${new Date().toDateString()}`,
-        },
+      },
+    })
+      .then(() => {
+        Alert.alert(
+          "Success!",
+          "Your transaction has been initiated successfully an account manager will be in touch with you shortly.",
+          [{ text: "OK", onPress: () => linkTo("/Activity") }]
+        );
+      })
+      .catch((error) => {
+        console.log(error);
+        setBuyCryptoButtonText("Buy Now");
       });
-      Alert.alert(
-        "Success!",
-        "Your transaction has been initiated successfully an account manager will be in touch with you shortly.",
-        [{ text: "OK", onPress: () => linkTo("/Activity") }]
-      );
-      setBuyCryptoButtonText("Buy Now");
-    } catch (error) {
-      setBuyCryptoButtonText("Buy Now");
-      console.log(error);
-      Alert.alert("Error", "Something went wrong");
-    }
+
+    //  catch (error) {
+    //   setBuyCryptoButtonText("Buy Now");
+    //   console.log(error);
+    //   Alert.alert("Error", "Something went wrong");
+    // }
   };
 
   const buyCrypto = () => {
@@ -126,7 +132,7 @@ const Buy = ({ navigation }) => {
             <Button
               mode="outlined"
               uppercase={false}
-              onPress={() => buyCrypto()}
+              onPress={buyCrypto}
               style={{
                 marginVertical: 30,
                 padding: 5,

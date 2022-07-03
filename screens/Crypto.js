@@ -143,7 +143,7 @@ const Crypto = ({ navigation }) => {
             <Button
               mode="outlined"
               uppercase={false}
-              onPress={() => sendCrypto()}
+              onPress={sendCrypto}
               style={{
                 marginVertical: 30,
                 padding: 5,

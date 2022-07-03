@@ -126,7 +126,7 @@ const Sell = ({ navigation }) => {
             <Button
               mode="outlined"
               uppercase={false}
-              onPress={() => sellCrypto()}
+              onPress={sellCrypto}
               style={{
                 marginVertical: 30,
                 padding: 5,
