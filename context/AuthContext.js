@@ -36,6 +36,7 @@ export function AuthProvider({ children }) {
   const [signInLoading, setSignInLoading] = useState(false);
   const [logInLoading, setLogInLoading] = useState(false);
   const [stateLoader, setStateLoader] = useState(false);
+  const [availableCashBalance, setAvailableCashBalance] = useState(0);
 
   // Signup function
   async function signup(email, password, country) {
@@ -52,6 +53,7 @@ export function AuthProvider({ children }) {
         {
           owner_uid: authUsers.user.uid,
           email: authUsers.user.email,
+          availableCashBalance: 0,
           country: country,
           created_at: new Date().toISOString(),
           localCurrency: {
@@ -184,6 +186,7 @@ export function AuthProvider({ children }) {
         setCountry(doc.data().country);
         setCode(doc.data().localCurrency.code);
         setName(doc.data().localCurrency.name);
+        setAvailableCashBalance(doc.data().availableCashBalance);
       })
       .catch((err) => {
         console.log(err);
@@ -350,6 +353,7 @@ export function AuthProvider({ children }) {
     setIsPinEntered,
     isPinEntered,
     upDateUserPassword,
+    availableCashBalance,
     globalCurrency,
     setGlobalCurrency,
     currencyName,

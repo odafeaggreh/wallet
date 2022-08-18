@@ -183,7 +183,7 @@ const Transactions = () => {
                               lineHeight: 15,
                             }}
                           >
-                            {formatter.format(item.item.amount)}
+                            {formatter.format(item.item.cryptoInCurr)}
                           </Text>
                         </View>
                         <View style={{ flex: 1, justifyContent: "center" }}>

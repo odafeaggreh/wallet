@@ -45,7 +45,7 @@ const Home = ({
     getMyHoldings,
     fireHoldings,
     homeTopUp,
-    skeleton,
+    availableCashBalance,
   } = useAuth();
 
   // Check if user email is verified
@@ -91,7 +91,8 @@ const Home = ({
       ? COLORS.lightGreen
       : COLORS.red;
 
-  let totalWallet = myHoldings.reduce((a, b) => a + (b.total || 0), 0);
+  let totalWallet =
+    myHoldings.reduce((a, b) => a + (b.total || 0), 0) + availableCashBalance;
 
   if (totalWallet) {
     setTotalWallet(totalWallet);
@@ -212,7 +213,58 @@ const Home = ({
                 </View>
               )}
 
-              {!homeTopUp && (
+              {/* If user has active coins */}
+
+              <View style={{ flex: 1 }}>
+                {totalWallet !== 0 ? (
+                  <Surface
+                    style={{
+                      height: 190,
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginTop: 0,
+                      padding: SIZES.padding,
+                      width: SIZES.width,
+                      elevation: 0,
+                    }}
+                  >
+                    {/* Figures */}
+
+                    <View>
+                      <PaperText
+                        style={{ color: COLORS.lightGray3, ...FONTS.h4 }}
+                      >
+                        Total Balance
+                      </PaperText>
+                      <PaperText
+                        style={{ color: COLORS.lightGray3, ...FONTS.h2 }}
+                      >
+                        {formatter.format(totalWallet)}
+                      </PaperText>
+                      <PaperText style={{ color: priceColor, ...FONTS.h5 }}>
+                        {" "}
+                        {formatter.format(valueChange)}{" "}
+                        {`(${percChange.toFixed(2)})`}% 7Days
+                      </PaperText>
+                    </View>
+
+                    {/* Chart */}
+                    <View>
+                      <DonutChart percentage={percChange} color={priceColor} />
+                    </View>
+                  </Surface>
+                ) : null}
+
+                {/* Display Portfolio */}
+                {homeTopUp && (
+                  <View style={{ flex: 1 }}>
+                    <ConDisplay coins={coins} />
+                  </View>
+                )}
+              </View>
+
+              {totalWallet === 0 ? (
                 <View
                   style={{
                     flex: 1,
@@ -321,56 +373,7 @@ const Home = ({
                     </Button>
                   </View>
                 </View>
-              )}
-
-              {/* If user has active coins */}
-
-              {homeTopUp && (
-                <View style={{ flex: 1 }}>
-                  <Surface
-                    style={{
-                      height: 190,
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      marginTop: 0,
-                      padding: SIZES.padding,
-                      width: SIZES.width,
-                      elevation: 0,
-                    }}
-                  >
-                    {/* Figures */}
-
-                    <View>
-                      <PaperText
-                        style={{ color: COLORS.lightGray3, ...FONTS.h4 }}
-                      >
-                        Total Balance
-                      </PaperText>
-                      <PaperText
-                        style={{ color: COLORS.lightGray3, ...FONTS.h2 }}
-                      >
-                        {formatter.format(totalWallet)}
-                      </PaperText>
-                      <PaperText style={{ color: priceColor, ...FONTS.h5 }}>
-                        {" "}
-                        {formatter.format(valueChange)}{" "}
-                        {`(${percChange.toFixed(2)})`}% 7Days
-                      </PaperText>
-                    </View>
-
-                    {/* Chart */}
-                    <View>
-                      <DonutChart percentage={percChange} color={priceColor} />
-                    </View>
-                  </Surface>
-
-                  {/* Display Portfolio */}
-                  <View style={{ flex: 1 }}>
-                    <ConDisplay coins={coins} />
-                  </View>
-                </View>
-              )}
+              ) : null}
             </View>
           </ScrollView>
         </View>

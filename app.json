@@ -1,8 +1,8 @@
 {
   "expo": {
     "name": "Blockchain",
-    "slug": "blockchain",
-    "version": "1.4.0",
+    "slug": "blockchainv2",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -18,7 +18,7 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "wecode.blockchainapp",
+      "package": "nowwecode.blockchainapp",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"

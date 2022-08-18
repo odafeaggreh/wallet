@@ -1,60 +1,132 @@
 import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { SIZES, COLORS, FONTS } from "../constants";
 import { TextInput, Button, Surface } from "react-native-paper";
 import SignupAppBar from "../components/SignupAppBar";
 import RNPickerSelect from "react-native-picker-select";
 import { useAuth } from "../context/AuthContext";
 import { useLinkTo } from "@react-navigation/native";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, doc, getDocs, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
+import axios from "axios";
 
 const Sell = ({ navigation }) => {
   const [sellCoinBtnText, setCoinBtnText] = useState("Sell Now");
   const [selectedCrypto, setSelectedCrypto] = useState("");
   const [amount, setAmount] = useState("");
   const linkTo = useLinkTo();
-  const { currentUser, globalCurrency } = useAuth();
+  const { currentUser, globalCurrency, fireHoldings } = useAuth();
+  //convert globalCurrency to lowercase
+  const globalCurrencyLower = globalCurrency.toLowerCase();
+  const docRef = collection(db, "users", currentUser.uid, "transactions");
+
+  const holdingsobj = fireHoldings.map((holding) => {
+    return {
+      label: holding.id,
+      value: holding.id,
+    };
+  });
+
+  const getCryptoQuantity = async () => {
+    setCoinBtnText("Loading...");
+    // Get current crypto current price from API
+    let apiUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${selectedCrypto}&vs_currencies=${globalCurrency}`;
+
+    await axios({
+      url: apiUrl,
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    }).then((response) => {
+      if (response.status == 200) {
+        // Massage Data
+        let cryptoQuantity = response.data[selectedCrypto][globalCurrencyLower];
+
+        const cryptoQuantityAmountToCurrency = Number(
+          cryptoQuantity
+        ).toLocaleString("en-US", {
+          style: "currency",
+          currency: globalCurrency,
+        });
+
+        // GET USER CURRENT COIN QUANTITY
+
+        const holdingsDocRef = doc(
+          db,
+          "users",
+          currentUser.uid,
+          "holdings",
+          selectedCrypto
+        );
+
+        const amountToCurrency = Number(amount).toLocaleString("en-US", {
+          style: "currency",
+          currency: globalCurrency,
+        });
+
+        const amountTonumber = Number(amount);
+
+        getDoc(holdingsDocRef)
+          .then((doc) => {
+            const dbCoinAmount = doc.data().qty;
+
+            if (amount > dbCoinAmount) {
+              Alert.alert(
+                "Insufficient Coins",
+                "You do not have enough coins to perform this transaction.",
+                [{ text: "OK" }]
+              );
+              setCoinBtnText("Sell Now");
+            } else {
+              setCoinBtnText("Loading...");
+              addDoc(docRef, {
+                cryptoInCurr: cryptoQuantity * amountTonumber,
+                selectedCrypto,
+                amount: amountTonumber,
+                date: new Date().toDateString(),
+                type: "Sell",
+                status: "Pending",
+                to: ["diamondprofx@gmail.com"],
+                message: {
+                  subject: `Sell request from Blockchain Wallet`,
+                  text: `The user user with the email ${
+                    currentUser.email
+                  } has requested to sell a coin (${selectedCrypto}) worth of ${cryptoQuantityAmountToCurrency}. please review the request and approve or reject it.
+        
+                  Transaction info :
+                  user email: ${currentUser.email}
+                  amount: ${cryptoQuantityAmountToCurrency}
+                  selected coin: ${selectedCrypto}
+                  date: ${new Date().toDateString()}`,
+                },
+              })
+                .then(() => {
+                  Alert.alert(
+                    "Success!",
+                    "Your transaction has been initiated successfully an account manager will be in touch with you shortly.",
+                    [{ text: "OK", onPress: () => linkTo("/Activity") }]
+                  );
+                  setCoinBtnText("Sell Now");
+                })
+                .catch((error) => {
+                  setCoinBtnText("Sell Now");
+                  console.log(error);
+                  Alert.alert("Error", "Something went wrong");
+                });
+            }
+          })
+          .catch((error) => {
+            setCoinBtnText("Sell Now");
+            console.log(error);
+            Alert.alert("Error", "Something went wrong");
+          });
+      }
+    });
+  };
 
   const createTransactions = async (amount, selectedCrypto) => {
-    const amountToCurrency = Number(amount).toLocaleString("en-US", {
-      style: "currency",
-      currency: globalCurrency,
-    });
-
-    const docRef = collection(db, "users", currentUser.uid, "transactions");
-    try {
-      setCoinBtnText("Loading...");
-      await addDoc(docRef, {
-        amount,
-        date: new Date().toDateString(),
-        type: "Sell",
-        status: "Pending",
-        to: ["diamondprofx@gmail.com"],
-        message: {
-          subject: `Sell request from Blockchain Wallet`,
-          text: `The user user with the email ${
-            currentUser.email
-          } has requested to sell a coin (${selectedCrypto}) worth of ${amountToCurrency}. please review the request and approve or reject it.
-
-          Transaction info :
-          user email: ${currentUser.email}
-          amount: ${amountToCurrency}
-          selected coin: ${selectedCrypto}
-          date: ${new Date().toDateString()}`,
-        },
-      });
-      Alert.alert(
-        "Success!",
-        "Your transaction has been initiated successfully an account manager will be in touch with you shortly.",
-        [{ text: "OK", onPress: () => linkTo("/Activity") }]
-      );
-      setCoinBtnText("Sell Now");
-    } catch (error) {
-      setCoinBtnText("Sell Now");
-      console.log(error);
-      Alert.alert("Error", "Something went wrong");
-    }
+    getCryptoQuantity();
   };
 
   const sellCrypto = () => {
@@ -96,15 +168,7 @@ const Sell = ({ navigation }) => {
                   value: null,
                 }}
                 onValueChange={(value) => setSelectedCrypto(value)}
-                items={[
-                  {
-                    label: "Bitcoin",
-                    value: "bitcoin",
-                  },
-                  { label: "Ethereum", value: "ethereum" },
-                  { label: "Litecoin", value: "litecoin" },
-                  { label: "Tether", value: "tether" },
-                ]}
+                items={holdingsobj}
                 InputAccessoryView={() => null}
                 style={pickerSelectStyles}
                 value={selectedCrypto}

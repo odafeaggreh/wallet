@@ -10,12 +10,12 @@ import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCN2AheH_fLcTjHNKyLv7tqOujbmfonS0I",
-  authDomain: "rn-blockchain.firebaseapp.com",
-  projectId: "rn-blockchain",
-  storageBucket: "rn-blockchain.appspot.com",
-  messagingSenderId: "802897162818",
-  appId: "1:802897162818:web:d210a6b320276c9bb273db",
+  apiKey: "AIzaSyAgtByYTKJ82t9GuTczultgWtGAcMdeX-w",
+  authDomain: "blockchain-568c1.firebaseapp.com",
+  projectId: "blockchain-568c1",
+  storageBucket: "blockchain-568c1.appspot.com",
+  messagingSenderId: "515600500650",
+  appId: "1:515600500650:web:bd8d2a36a424e4fb77cdd3",
 };
 
 const defaultApp = initializeApp(firebaseConfig);

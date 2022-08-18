@@ -99,14 +99,14 @@ const EnterPin = () => {
             Logout
           </Button>
         </View>
-        <View style={{ height: SIZES.height / 2 }}>
+        <View style={{ height: SIZES.height }}>
           {/* LOGO */}
           <View
             style={{
               alignItems: "center",
               marginTop: 50,
               marginBottom: 50,
-              height: 150,
+              height: SIZES.height * 0.15,
             }}
           >
             <Svg
@@ -138,61 +138,65 @@ const EnterPin = () => {
             </Svg>
           </View>
 
-          <View style={{ marginTop: 70, marginBottom: 30 }}>
-            <Text
-              style={{
-                color: "#1656B9",
-                textAlign: "center",
-                fontSize: 18,
-              }}
-            >
-              Enter PIN
-            </Text>
-          </View>
+          {/* PIN VIEW */}
+          <View style={{ height: SIZES.height * 0.8 }}>
+            <View style={{ marginTop: 70, marginBottom: 30 }}>
+              <Text
+                style={{
+                  color: "#1656B9",
+                  textAlign: "center",
+                  fontSize: 18,
+                }}
+              >
+                Enter PIN
+              </Text>
+            </View>
 
-          <View>
-            <ReactNativePinView
-              inputSize={30}
-              activeOpacity={0.5}
-              buttonTextByKey={btnText}
-              ref={pinView}
-              pinLength={4}
-              buttonSize={55}
-              onValueChange={(value) => setEnteredPin(value)}
-              buttonAreaStyle={{
-                marginTop: 30,
-                backgroundColor: "#1656b9",
-              }}
-              inputAreaStyle={{
-                marginBottom: 10,
-              }}
-              inputViewEmptyStyle={{
-                backgroundColor: "transparent",
-                borderWidth: 1.1,
-                borderColor: "#1656b9",
-              }}
-              inputViewFilledStyle={{
-                backgroundColor: "#1656b9",
-              }}
-              buttonViewStyle={{
-                borderRadius: 0,
-              }}
-              buttonTextStyle={{
-                textAlign: "center",
-                color: "#fff",
+            <View>
+              <ReactNativePinView
+                inputSize={30}
+                activeOpacity={0.5}
+                buttonTextByKey={btnText}
+                ref={pinView}
+                pinLength={4}
+                buttonSize={55}
+                onValueChange={(value) => setEnteredPin(value)}
+                buttonAreaStyle={{
+                  marginTop: 30,
+                  marginBottom: 10,
+                  backgroundColor: "#1656b9",
+                }}
+                inputAreaStyle={{
+                  marginBottom: 10,
+                }}
+                inputViewEmptyStyle={{
+                  backgroundColor: "transparent",
+                  borderWidth: 1.1,
+                  borderColor: "#1656b9",
+                }}
+                inputViewFilledStyle={{
+                  backgroundColor: "#1656b9",
+                }}
+                buttonViewStyle={{
+                  borderRadius: 0,
+                }}
+                buttonTextStyle={{
+                  textAlign: "center",
+                  color: "#fff",
 
-                fontSize: 16,
-                fontWeight: "bold",
-              }}
-              onButtonPress={(key) => {
-                if (key === "custom_right") {
-                  pinView.current.clear();
+                  fontSize: 16,
+                  fontWeight: "bold",
+                }}
+                onButtonPress={(key) => {
+                  if (key === "custom_right") {
+                    pinView.current.clear();
+                  }
+                }}
+                customRightButton={
+                  <Icon name={"ios-backspace"} size={36} color={"#fff"} />
                 }
-              }}
-              customRightButton={
-                <Icon name={"ios-backspace"} size={36} color={"#fff"} />
-              }
-            />
+              />
+            </View>
           </View>
         </View>
       </View>

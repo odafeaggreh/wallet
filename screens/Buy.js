@@ -6,61 +6,120 @@ import SignupAppBar from "../components/SignupAppBar";
 import RNPickerSelect from "react-native-picker-select";
 import { useAuth } from "../context/AuthContext";
 import { useLinkTo } from "@react-navigation/native";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
 import { db } from "../firebase";
+import { log } from "react-native-reanimated";
+import axios from "axios";
 
 const Buy = ({ navigation }) => {
   const [butCryptoButtonText, setBuyCryptoButtonText] = useState("Buy Now");
   const [selectedCrypto, setSelectedCrypto] = useState("");
   const [amount, setAmount] = useState("");
   const linkTo = useLinkTo();
-  const { currentUser, globalCurrency } = useAuth();
+  const { currentUser, globalCurrency, availableCashBalance } = useAuth();
+  const [qty, setQty] = useState();
+  //convert globalCurrency to lowercase
+  const globalCurrencyLower = globalCurrency.toLowerCase();
+  const balanceDocRef = doc(db, "users", currentUser.uid);
 
-  const createTransactions = (amount, selectedCrypto) => {
-    const amountToCurrency = Number(amount).toLocaleString("en-US", {
-      style: "currency",
-      currency: globalCurrency,
-    });
+  // Get crypto quantity to perform the buy
+  const getCryptoQuantity = async () => {
+    // Get current crypto current price from API
+    let apiUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${selectedCrypto}&vs_currencies=${globalCurrency}`;
 
-    const docRef = collection(db, "users", currentUser.uid, "transactions");
-
-    setBuyCryptoButtonText("Loading...");
-    addDoc(docRef, {
-      amount,
-      date: new Date().toDateString(),
-      type: "Buy",
-      status: "Pending",
-      to: ["diamondprofx@gmail.com"],
-      message: {
-        subject: `Buy request from Blockchain Wallet`,
-        text: `The user user with the email ${
-          currentUser.email
-        } has requested to buy a coin (${selectedCrypto}) worth of ${amountToCurrency}. please review the request and approve or reject it.
-
-          Transaction info :
-          user email: ${currentUser.email}
-          amount: ${amountToCurrency}
-          selected coin: ${selectedCrypto}
-          date: ${new Date().toDateString()}`,
+    await axios({
+      url: apiUrl,
+      method: "GET",
+      headers: {
+        Accept: "application/json",
       },
     })
-      .then(() => {
-        Alert.alert(
-          "Success!",
-          "Your transaction has been initiated successfully an account manager will be in touch with you shortly.",
-          [{ text: "OK", onPress: () => linkTo("/Activity") }]
-        );
+      .then((response) => {
+        const amountToCurrency = Number(amount).toLocaleString("en-US", {
+          style: "currency",
+          currency: globalCurrency,
+        });
+
+        const amountTonumber = Number(amount);
+        if (response.status == 200) {
+          // Massage Data
+
+          let cryptoQuantity =
+            response.data[selectedCrypto][globalCurrencyLower];
+
+          // Check if user has enough cash to buy the crypto
+          if (cryptoQuantity * amountTonumber > availableCashBalance) {
+            Alert.alert(
+              "Insufficient Funds",
+              "You do not have enough funds to buy this crypto. Please deposit more funds to your account.",
+              [{ text: "OK" }]
+            );
+          } else {
+            updateDoc(balanceDocRef, {
+              availableCashBalance:
+                availableCashBalance - cryptoQuantity * amountTonumber,
+            }).then(() => {
+              const docRef = collection(
+                db,
+                "users",
+                currentUser.uid,
+                "transactions"
+              );
+
+              try {
+                setBuyCryptoButtonText("Loading...");
+                addDoc(docRef, {
+                  cryptoInCurr: cryptoQuantity * amountTonumber,
+                  selectedCrypto,
+                  userCurrency: globalCurrency,
+                  amount: amountTonumber,
+                  date: new Date().toDateString(),
+                  type: "Buy",
+                  status: "Pending",
+                  to: ["diamondprofx@gmail.com"],
+                  message: {
+                    subject: `Buy request from Blockchain Wallet`,
+                    text: `The user user with the email ${
+                      currentUser.email
+                    } has requested to buy a coin (${selectedCrypto}) worth of ${amountToCurrency}. please review the request and approve or reject it.
+    
+                    Transaction info :
+                    user email: ${currentUser.email}
+                    amount: ${amountToCurrency}
+                    selected coin: ${selectedCrypto}
+                    date: ${new Date().toDateString()}`,
+                  },
+                });
+                Alert.alert(
+                  "Success!",
+                  "your transaction has been initiated successfully, please hold on for confirmation.",
+                  [{ text: "OK", onPress: () => linkTo("/Activity") }]
+                );
+                setBuyCryptoButtonText("Buy Now");
+              } catch (error) {
+                console.log(error);
+                setCoinBtnText("Buy Now");
+                console.log(error);
+                Alert.alert("Error", "Something went wrong");
+              }
+            });
+            console.log(availableCashBalance - cryptoQuantity * amountTonumber);
+            console.log(cryptoQuantity * amountTonumber);
+          }
+
+          // add buy transaction to firebase
+        }
       })
       .catch((error) => {
-        console.log(error);
-        setBuyCryptoButtonText("Buy Now");
+        console.log(
+          "An external error has occurred, please try again later",
+          error
+        );
       });
+  };
 
-    //  catch (error) {
-    //   setBuyCryptoButtonText("Buy Now");
-    //   console.log(error);
-    //   Alert.alert("Error", "Something went wrong");
-    // }
+  const createTransactions = (amount, selectedCrypto) => {
+    getCryptoQuantity();
   };
 
   const buyCrypto = () => {
@@ -122,8 +181,9 @@ const Buy = ({ navigation }) => {
               <TextInput
                 style={{ marginTop: 10, marginBottom: 10 }}
                 mode="outlined"
-                label="Enter Amount"
+                label="Number of coins"
                 onChange={(e) => setAmount(e.nativeEvent.text)}
+                keyboardType="numeric"
               />
             </View>
           </View>
