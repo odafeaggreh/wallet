@@ -1,14 +1,6 @@
 import React from "react";
 import { View, Text } from "react-native";
 import { SIZES, COLORS, FONTS } from "../constants";
-import {
-  ChartDot,
-  ChartPath,
-  ChartPathProvider,
-  ChartXLabel,
-  ChartYLabel,
-  monotoneCubicInterpolation,
-} from "@rainbow-me/animated-charts";
 import moment from "moment";
 
 const Charts = ({ containerStyle, chartPrices, coinData }) => {

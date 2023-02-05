@@ -1,8 +1,8 @@
 {
   "expo": {
     "name": "Blockchain",
-    "slug": "blockchainv2",
-    "version": "1.0.0",
+    "slug": "blockchainNew",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -26,11 +26,15 @@
     },
     "androidNavigationBar": {
       "barStyle": "dark-content",
-
       "backgroundColor": "#ffffff"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "e441f4e7-1af7-4dbe-a427-b75c1f4f5044"
+      }
     }
   }
 }

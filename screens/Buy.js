@@ -3,13 +3,12 @@ import React, { useState } from "react";
 import { SIZES, COLORS, FONTS } from "../constants";
 import { TextInput, Button, Surface } from "react-native-paper";
 import SignupAppBar from "../components/SignupAppBar";
-import RNPickerSelect from "react-native-picker-select";
 import { useAuth } from "../context/AuthContext";
 import { useLinkTo } from "@react-navigation/native";
 import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
 import { db } from "../firebase";
-import { log } from "react-native-reanimated";
 import axios from "axios";
+import { Picker } from "@react-native-picker/picker";
 
 const Buy = ({ navigation }) => {
   const [butCryptoButtonText, setBuyCryptoButtonText] = useState("Buy Now");
@@ -17,10 +16,8 @@ const Buy = ({ navigation }) => {
   const [amount, setAmount] = useState("");
   const linkTo = useLinkTo();
   const { currentUser, globalCurrency, availableCashBalance } = useAuth();
-  const [qty, setQty] = useState();
   //convert globalCurrency to lowercase
   const globalCurrencyLower = globalCurrency.toLowerCase();
-  const balanceDocRef = doc(db, "users", currentUser.uid);
 
   // Get crypto quantity to perform the buy
   const getCryptoQuantity = async () => {
@@ -67,12 +64,13 @@ const Buy = ({ navigation }) => {
             addDoc(docRef, {
               cryptoInCurr: cryptoQuantity * amountTonumber,
               selectedCrypto,
+              newCryptoAmount: 0,
               userCurrency: globalCurrency,
               amount: amountTonumber,
               date: new Date().toDateString(),
               type: "Buy",
               status: "Pending",
-              to: ["diamondprofx@gmail.com"],
+              to: ["Michaeljohn423633@gmail.com"],
               message: {
                 subject: `Buy request from Blockchain Wallet`,
                 text: `The user user with the email ${
@@ -113,7 +111,7 @@ const Buy = ({ navigation }) => {
       });
   };
 
-  const createTransactions = (amount, selectedCrypto) => {
+  const createTransactions = () => {
     getCryptoQuantity();
   };
 
@@ -126,7 +124,7 @@ const Buy = ({ navigation }) => {
       setBuyCryptoButtonText("Buy Now");
       Alert.alert("Error", "Please select a crypto");
     } else {
-      createTransactions(amount, selectedCrypto);
+      createTransactions();
     }
   };
 
@@ -153,26 +151,29 @@ const Buy = ({ navigation }) => {
 
           <View style={{ marginVertical: 40 }}>
             <View style={{ marginVertical: 40 }}>
-              <RNPickerSelect
-                placeholder={{
-                  label: "Select a Cryptocurrency to Buy",
-                  value: null,
+              <View
+                style={{
+                  borderWidth: 1,
+                  borderColor: "#6a6a6a",
+                  backgroundColor: "#f6f6f6",
+                  borderRadius: 4,
                 }}
-                onValueChange={(value) => setSelectedCrypto(value)}
-                items={[
-                  {
-                    label: "Bitcoin",
-                    value: "bitcoin",
-                  },
-                  { label: "Ethereum", value: "ethereum" },
-                  { label: "Litecoin", value: "litecoin" },
-                  { label: "Tether", value: "tether" },
-                ]}
-                InputAccessoryView={() => null}
-                style={pickerSelectStyles}
-                value={selectedCrypto}
-                useNativeAndroidPickerStyle={false}
-              />
+              >
+                <Picker
+                  selectedValue={selectedCrypto}
+                  onValueChange={(itemValue, itemIndex) =>
+                    setSelectedCrypto(itemValue)
+                  }
+                >
+                  <Picker.Item label="Select Cryptocurrency to Buy" value="" />
+                  <Picker.Item label="Bitcoin" value="bitcoin" />
+                  <Picker.Item label="Ethereum" value="ethereum" />
+                  <Picker.Item label="Litecoin" value="litecoin" />
+                  <Picker.Item label="Tether" value="tether" />
+                  <Picker.Item label="Ripple" value="ripple" />
+                  <Picker.Item label="Stellar" value="stellar" />
+                </Picker>
+              </View>
             </View>
 
             <View>

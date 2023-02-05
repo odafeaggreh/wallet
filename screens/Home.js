@@ -33,13 +33,11 @@ const Home = ({
   coins,
   navigation,
 }) => {
-  const [selectedCoin, setSelectedCoin] = useState(null);
   const {
     currentUser,
     verifiyUserEmail,
     globalCurrency,
     setTotalWallet,
-    currencyAmount,
     refreshing,
     setRefreshing,
     getMyHoldings,

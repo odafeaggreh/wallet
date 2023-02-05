@@ -118,9 +118,10 @@ const ConDisplay = ({ getHoldings, myHoldings }) => {
 
                       {/* price */}
                       <Text>{formatter.format(item.total)}</Text>
-                      {/* amout owned */}
+                      {/* amount owned */}
                       <Text>
-                        {item.qty} {item.symbol.toUpperCase()}
+                        {(Math.round(item.qty * 100) / 100).toFixed(2)}{" "}
+                        {item.symbol.toUpperCase()}
                       </Text>
                     </View>
                   </View>

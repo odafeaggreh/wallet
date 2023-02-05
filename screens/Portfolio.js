@@ -1,10 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import {
-  Button,
-  Surface,
-  Text as PaperText,
-  TextInput,
-} from "react-native-paper";
+import React, { useState, useEffect } from "react";
+import { Button } from "react-native-paper";
 import {
   View,
   Text,
@@ -13,33 +8,24 @@ import {
   Image,
   ActivityIndicator,
   StyleSheet,
-  Animated,
   ScrollView,
   RefreshControl,
-  Dimensions,
 } from "react-native";
 import { connect } from "react-redux";
 import { useFocusEffect } from "@react-navigation/native";
 import { getHoldings } from "../stores/market/marketActions";
 import MainLayout from "./MainLayout";
-import { BalanceInfo, Charts } from "../components";
+
 import { SIZES, COLORS, FONTS, dummyData, icons } from "../constants";
 import AppBar from "../components/AppBar";
 import { db } from "../firebase";
 import { useAuth } from "../context/AuthContext";
 import { collection, getDocs } from "firebase/firestore";
 import { Divider } from "react-native-paper";
-import BottomSheet from "reanimated-bottom-sheet";
-import { Modalize } from "react-native-modalize";
 
 const Portfolio = ({ getHoldings, myHoldings, navigation }) => {
-  const [selectedCoin, setSelectedCoin] = useState();
   const [fireHoldings, setFireHoldings] = useState();
   const [topUp, setTopUp] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
-  const sheetRef = React.useRef(null);
-
-  const modalizeRef = useRef(null);
 
   const { currentUser, globalCurrency, refreshing, setRefreshing } = useAuth();
 
@@ -81,58 +67,6 @@ const Portfolio = ({ getHoldings, myHoldings, navigation }) => {
   });
 
   // Crypto details bottom sheet
-
-  const openBottomSheet = (item) => {
-    setSelectedCoin(item);
-    modalizeRef.current.open();
-  };
-
-  const renderHeader = (holdings) => {
-    console.log("Selected coinssss", holdings);
-    return (
-      <View style={{ backgroundColor: COLORS.white, padding: 16, height: 150 }}>
-        <View
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Image
-            source={{ uri: holdings?.image }}
-            style={{ width: 35, height: 35, marginBottom: 10 }}
-          />
-          <Text
-            style={{
-              color: COLORS.lightGray2,
-              fontWeight: "bold",
-              fontSize: 20,
-            }}
-          >
-            {holdings?.name}
-          </Text>
-        </View>
-      </View>
-    );
-  };
-
-  const renderContent = () => {
-    return (
-      <View style={{ backgroundColor: COLORS.white }}>
-        {myHoldings && (
-          <Charts
-            containerStyle={{ marginVertical: SIZES.padding }}
-            coinData={myHoldings}
-            chartPrices={
-              selectedCoin
-                ? selectedCoin.sparkline_in_7d?.value
-                : myHoldings[0]?.sparkline_in_7d?.value
-            }
-          />
-        )}
-      </View>
-    );
-  };
 
   useFocusEffect(
     React.useCallback(() => {
@@ -350,7 +284,6 @@ const Portfolio = ({ getHoldings, myHoldings, navigation }) => {
                                 height: 55,
                                 paddingHorizontal: SIZES.padding,
                               }}
-                              onPress={() => openBottomSheet(item)}
                             >
                               <View
                                 style={{
@@ -450,7 +383,10 @@ const Portfolio = ({ getHoldings, myHoldings, navigation }) => {
                                     lineHeight: 15,
                                   }}
                                 >
-                                  {item.qty} {item.symbol.toUpperCase()}
+                                  {(Math.round(item.qty * 100) / 100).toFixed(
+                                    2
+                                  )}
+                                  {item.symbol.toUpperCase()}
                                 </Text>
                               </View>
                             </TouchableOpacity>
@@ -470,17 +406,6 @@ const Portfolio = ({ getHoldings, myHoldings, navigation }) => {
           </ScrollView>
         </View>
       )}
-
-      <Modalize
-        ref={modalizeRef}
-        HeaderComponent={() => renderHeader(selectedCoin)}
-        snapPoint={400}
-        modalHeight={400}
-        threshold={50}
-        panGestureComponentEnabled={true}
-      >
-        {renderContent()}
-      </Modalize>
     </MainLayout>
   );
 };

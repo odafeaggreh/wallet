@@ -80,7 +80,6 @@ const MyTabs = ({
           }}
           listeners={{
             tabPress: (e) => {
-              console.log(123);
               if (isTradeModalVisible) {
                 e.preventDefault();
               }

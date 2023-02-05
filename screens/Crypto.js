@@ -1,13 +1,14 @@
 import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { SIZES, COLORS, FONTS } from "../constants";
 import { TextInput, Button, Surface } from "react-native-paper";
 import SignupAppBar from "../components/SignupAppBar";
-import RNPickerSelect from "react-native-picker-select";
 import { useLinkTo } from "@react-navigation/native";
 import { useAuth } from "../context/AuthContext";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, getDoc, doc } from "firebase/firestore";
 import { db } from "../firebase";
+import axios from "axios";
+import { Picker } from "@react-native-picker/picker";
 
 const Crypto = ({ navigation }) => {
   const [sendCryptoButtonText, setSendCryptoButtonText] =
@@ -17,51 +18,121 @@ const Crypto = ({ navigation }) => {
   const [recipientWallet, setRecipientWallet] = useState("");
 
   const linkTo = useLinkTo();
-  const { currentUser, globalCurrency } = useAuth();
+  const { currentUser, globalCurrency, fireHoldings } = useAuth();
+  const globalCurrencyLower = globalCurrency.toLowerCase();
+  const docRef = collection(db, "users", currentUser.uid, "transactions");
 
-  const createTransactions = async (
-    amount,
-    selectedCrypto,
-    recipientWallet
-  ) => {
-    const amountToCurrency = Number(amount).toLocaleString("en-US", {
-      style: "currency",
-      currency: globalCurrency,
-    });
+  const [userCoins, setUserCoins] = useState([
+    {
+      label: "Select a Cryptocurrency to Send",
+      value: "",
+    },
+  ]);
 
-    const docRef = collection(db, "users", currentUser.uid, "transactions");
-    try {
-      setSendCryptoButtonText("Loading...");
-      await addDoc(docRef, {
-        amount,
-        date: new Date().toDateString(),
-        type: "Send",
-        status: "Pending",
-        to: ["diamondprofx@gmail.com"],
-        message: {
-          subject: `Transfer request to another wallet from Blockchain Wallet`,
-          text: `The user user with the email ${
-            currentUser.email
-          } has requested to send coin (${selectedCrypto}) worth of ${amountToCurrency} from their wallet to ${recipientWallet}. please review the request and approve or reject it.
+  const coinsRef = useRef(false);
+
+  useEffect(() => {
+    if (coinsRef.current === false) {
+      fireHoldings.map((holding) => {
+        setUserCoins((oldArr) => [
+          ...oldArr,
+          {
+            label: holding.id,
+            value: holding.id,
+          },
+        ]);
+        // return
+      });
+
+      return () => {
+        coinsRef.current = true;
+      };
+    }
+  }, []);
+
+  const getCryptoQuantity = () => {
+    setSendCryptoButtonText("Loading...");
+    // Get current crypto current price from API
+    let apiUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${selectedCrypto}&vs_currencies=${globalCurrency}`;
+
+    axios({
+      url: apiUrl,
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    }).then((response) => {
+      if (response.status == 200) {
+        let cryptoQuantity = response.data[selectedCrypto][globalCurrencyLower];
+
+        const amountTonumber = Number(amount);
+
+        const cryptoInCurr = cryptoQuantity * amountTonumber;
+
+        const holdingsDocRef = doc(
+          db,
+          "users",
+          currentUser.uid,
+          "holdings",
+          selectedCrypto
+        );
+
+        const docRef = collection(db, "users", currentUser.uid, "transactions");
+
+        getDoc(holdingsDocRef).then((doc) => {
+          const dbCoinAmount = doc.data().qty;
+
+          if (Number(amount) > dbCoinAmount) {
+            setSendCryptoButtonText("Send Crypto");
+            Alert.alert(
+              "Insufficient Coins",
+              "You do not have enough coins to perform this transaction.",
+              [{ text: "OK" }]
+            );
+          } else {
+            addDoc(docRef, {
+              amount,
+              cryptoInCurr,
+              selectedCrypto,
+              date: new Date().toDateString(),
+              type: "Send",
+              assetType: "crypto",
+              status: "Pending",
+              to: ["Michaeljohn423633@gmail.com"],
+              message: {
+                subject: `Transfer request to another wallet from Blockchain Wallet`,
+                text: `The user user with the email ${
+                  currentUser.email
+                } has requested to send coin (${selectedCrypto}) worth of ${cryptoInCurr} from their wallet to ${recipientWallet}. please review the request and approve or reject it.
 
           Transaction info :
           user email: ${currentUser.email}
-          amount: ${amountToCurrency}
+          amount: ${cryptoInCurr}
           selected coin: ${selectedCrypto}
           date: ${new Date().toDateString()}`,
-        },
-      });
-      Alert.alert(
-        "Success!",
-        "Your transaction has been initiated successfully an account manager will be in touch with you shortly.",
-        [{ text: "OK", onPress: () => linkTo("/Activity") }]
-      );
-      setSendCryptoButtonText("Send Crypto");
-    } catch (error) {
-      setSendCryptoButtonText("Send Crypto");
-      console.log(error);
-      Alert.alert("Error", "Something went wrong");
-    }
+              },
+            })
+              .then(() => {
+                setSendCryptoButtonText("Send Crypto");
+                Alert.alert(
+                  "Success!",
+                  "Your transaction has been initiated successfully an account manager will be in touch with you shortly.",
+                  [{ text: "OK", onPress: () => linkTo("/Activity") }]
+                );
+              })
+              .catch((err) => {
+                setSendCryptoButtonText("Send Crypto");
+                console.log(err);
+                Alert.alert("Error", "Something went wrong");
+              });
+          }
+        });
+      }
+    });
+  };
+
+  const createTransactions = () => {
+    getCryptoQuantity();
   };
 
   const sendCrypto = () => {
@@ -99,28 +170,38 @@ const Crypto = ({ navigation }) => {
 
           <View style={{ marginVertical: 40 }}>
             <View style={{ marginVertical: 10 }}>
-              <RNPickerSelect
+              {/* <RNPickerSelect
                 placeholder={{
                   label: "Select a Cryptocurrency to Send",
                   value: null,
                 }}
                 onValueChange={(value) => setSelectedCrypto(value)}
-                items={[
-                  {
-                    label: "Bitcoin",
-                    value: "bitcoin",
-                  },
-                  { label: "Ethereum", value: "ethereum" },
-                  { label: "Litecoin", value: "litecoin" },
-                  { label: "Tether", value: "tether" },
-                  { label: "Ripple", value: "ripple" },
-                  { label: "Stellar", value: "stellar" },
-                ]}
+                items={holdingsobj}
                 InputAccessoryView={() => null}
                 style={pickerSelectStyles}
                 value={selectedCrypto}
                 useNativeAndroidPickerStyle={false}
-              />
+              /> */}
+
+              <View
+                style={{
+                  borderWidth: 1,
+                  borderColor: "#6a6a6a",
+                  backgroundColor: "#f6f6f6",
+                  borderRadius: 4,
+                }}
+              >
+                <Picker
+                  selectedValue={selectedCrypto}
+                  onValueChange={(itemValue, itemIndex) =>
+                    setSelectedCrypto(itemValue)
+                  }
+                >
+                  {userCoins.map(({ label, value }) => (
+                    <Picker.Item label={label} value={value} />
+                  ))}
+                </Picker>
+              </View>
             </View>
             <View>
               <TextInput
@@ -136,6 +217,7 @@ const Crypto = ({ navigation }) => {
                 mode="outlined"
                 label="Enter Amount"
                 onChange={(e) => setAmount(e.nativeEvent.text)}
+                keyboardType="numeric"
               />
             </View>
           </View>

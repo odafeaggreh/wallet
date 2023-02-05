@@ -1,0 +1,9 @@
+upikjuqvpqteyxwi
+
+smtps://richardsonlyon911@gmail.com:upikjuqvpqteyxwi@smtp.gmail.com:465
+
+users/{UID}/transactions
+
+"react-native-gesture-handler": "~2.8.0",
+
+"react-native-gesture-handler": "^1.7.0",

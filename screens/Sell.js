@@ -1,14 +1,21 @@
-import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
-import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Alert,
+  LogBox,
+} from "react-native";
+import React, { useState, useEffect, useRef } from "react";
 import { SIZES, COLORS, FONTS } from "../constants";
 import { TextInput, Button, Surface } from "react-native-paper";
 import SignupAppBar from "../components/SignupAppBar";
-import RNPickerSelect from "react-native-picker-select";
 import { useAuth } from "../context/AuthContext";
 import { useLinkTo } from "@react-navigation/native";
 import { collection, addDoc, doc, getDocs, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import axios from "axios";
+import { Picker } from "@react-native-picker/picker";
 
 const Sell = ({ navigation }) => {
   const [sellCoinBtnText, setCoinBtnText] = useState("Sell Now");
@@ -20,12 +27,33 @@ const Sell = ({ navigation }) => {
   const globalCurrencyLower = globalCurrency.toLowerCase();
   const docRef = collection(db, "users", currentUser.uid, "transactions");
 
-  const holdingsobj = fireHoldings.map((holding) => {
-    return {
-      label: holding.id,
-      value: holding.id,
-    };
-  });
+  const [userCoins, setUserCoins] = useState([
+    {
+      label: "Select a Cryptocurrency to Sell",
+      value: "",
+    },
+  ]);
+
+  const coinsRef = useRef(false);
+
+  useEffect(() => {
+    if (coinsRef.current === false) {
+      fireHoldings.map((holding) => {
+        setUserCoins((oldArr) => [
+          ...oldArr,
+          {
+            label: holding.id,
+            value: holding.id,
+          },
+        ]);
+        // return
+      });
+
+      return () => {
+        coinsRef.current = true;
+      };
+    }
+  }, []);
 
   const getCryptoQuantity = async () => {
     setCoinBtnText("Loading...");
@@ -83,17 +111,18 @@ const Sell = ({ navigation }) => {
               addDoc(docRef, {
                 cryptoInCurr: cryptoQuantity * amountTonumber,
                 selectedCrypto,
+                newCryptoAmount: 0,
                 amount: amountTonumber,
                 date: new Date().toDateString(),
                 type: "Sell",
                 status: "Pending",
-                to: ["diamondprofx@gmail.com"],
+                to: ["Michaeljohn423633@gmail.com"],
                 message: {
                   subject: `Sell request from Blockchain Wallet`,
                   text: `The user user with the email ${
                     currentUser.email
                   } has requested to sell a coin (${selectedCrypto}) worth of ${cryptoQuantityAmountToCurrency}. please review the request and approve or reject it.
-        
+
                   Transaction info :
                   user email: ${currentUser.email}
                   amount: ${cryptoQuantityAmountToCurrency}
@@ -162,26 +191,41 @@ const Sell = ({ navigation }) => {
 
           <View style={{ marginVertical: 40 }}>
             <View style={{ marginVertical: 40 }}>
-              <RNPickerSelect
-                placeholder={{
-                  label: "Select a Cryptocurrency to Sell",
-                  value: null,
+              <View
+                style={{
+                  borderWidth: 1,
+                  borderColor: "#6a6a6a",
+                  backgroundColor: "#f6f6f6",
+                  borderRadius: 4,
                 }}
-                onValueChange={(value) => setSelectedCrypto(value)}
-                items={holdingsobj}
-                InputAccessoryView={() => null}
-                style={pickerSelectStyles}
-                value={selectedCrypto}
-                useNativeAndroidPickerStyle={false}
-              />
+              >
+                <Picker
+                  selectedValue={selectedCrypto}
+                  onValueChange={(itemValue, itemIndex) =>
+                    setSelectedCrypto(itemValue)
+                  }
+                >
+                  {userCoins.map(({ label, value }) => (
+                    <Picker.Item label={label} value={value} />
+                  ))}
+                </Picker>
+              </View>
             </View>
 
             <View>
               <TextInput
-                style={{ marginTop: 10, marginBottom: 10 }}
+                style={{
+                  marginTop: 10,
+                  marginBottom: 10,
+                  backgroundColor: "#f6f6f6",
+                  borderRadius: 4,
+                  color: "#000",
+                }}
                 mode="outlined"
                 label="Enter Amount"
                 onChange={(e) => setAmount(e.nativeEvent.text)}
+                keyboardType="numeric"
+                placeholderTextColor="#000"
               />
             </View>
           </View>

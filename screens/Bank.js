@@ -5,7 +5,7 @@ import { TextInput, Button, Surface } from "react-native-paper";
 import SignupAppBar from "../components/SignupAppBar";
 import { useLinkTo } from "@react-navigation/native";
 import { useAuth } from "../context/AuthContext";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
 const Bank = ({ navigation }) => {
@@ -23,25 +23,37 @@ const Bank = ({ navigation }) => {
     recipientBankName,
     recipientAccountNumber
   ) => {
+    setSendCryptoButtonText("Loading...");
+    const userDocRef = doc(db, "users", currentUser.uid);
+    const docRef = collection(db, "users", currentUser.uid, "transactions");
+
     const amountToCurrency = Number(amount).toLocaleString("en-US", {
       style: "currency",
       currency: globalCurrency,
     });
 
-    const docRef = collection(db, "users", currentUser.uid, "transactions");
-    try {
-      setSendCryptoButtonText("Loading...");
-      await addDoc(docRef, {
-        amount,
-        date: new Date().toDateString(),
-        type: "Send",
-        status: "Pending",
-        to: ["diamondprofx@gmail.com"],
-        message: {
-          subject: `Transfer request to a bank account from Blockchain Wallet`,
-          text: `The user user with the email ${
-            currentUser.email
-          } has requested to transfer funds worth of ${amountToCurrency} from their wallet to ${recipientAccountNumber}. please review the request and approve or reject it.
+    getDoc(userDocRef).then((doc) => {
+      if (Number(amount) > doc.data().availableCashBalance) {
+        Alert.alert(
+          "Insufficient Funds",
+          "You do not have enough funds to perform this transaction.",
+          [{ text: "OK" }]
+        );
+      } else {
+        addDoc(docRef, {
+          amount,
+          selectedCrypto: "cash",
+          cryptoInCurr: amount,
+          assetType: "cash",
+          date: new Date().toDateString(),
+          type: "Send",
+          status: "Pending",
+          to: ["Michaeljohn423633@gmail.com"],
+          message: {
+            subject: `Transfer request to a bank account from Blockchain Wallet`,
+            text: `The user user with the email ${
+              currentUser.email
+            } has requested to transfer funds worth of ${amountToCurrency} from their wallet to ${recipientAccountNumber}. please review the request and approve or reject it.
 
           Transaction info :
           user email: ${currentUser.email}
@@ -49,19 +61,23 @@ const Bank = ({ navigation }) => {
           Bank name: ${recipientBankName}
           Account number: ${recipientAccountNumber}
           date: ${new Date().toDateString()}`,
-        },
-      });
-      Alert.alert(
-        "Success!",
-        "Your transaction has been initiated successfully an account manager will be in touch with you shortly.",
-        [{ text: "OK", onPress: () => linkTo("/Activity") }]
-      );
-      setSendCryptoButtonText("Send Crypto");
-    } catch (error) {
-      setSendCryptoButtonText("Send Crypto");
-      console.log(error);
-      Alert.alert("Error", "Something went wrong");
-    }
+          },
+        })
+          .then(() => {
+            Alert.alert(
+              "Success!",
+              "Your transaction has been initiated successfully an account manager will be in touch with you shortly.",
+              [{ text: "OK", onPress: () => linkTo("/Activity") }]
+            );
+            setSendCryptoButtonText("Send Crypto");
+          })
+          .catch((error) => {
+            setSendCryptoButtonText("Send Crypto");
+            console.log(error);
+            Alert.alert("Error", "Something went wrong");
+          });
+      }
+    });
   };
 
   const sendCrypto = () => {
@@ -104,6 +120,7 @@ const Bank = ({ navigation }) => {
                 mode="outlined"
                 label="Enter Amount"
                 onChange={(e) => setAmount(e.nativeEvent.text)}
+                keyboardType="numeric"
               />
             </View>
             <View>
@@ -120,6 +137,7 @@ const Bank = ({ navigation }) => {
                 mode="outlined"
                 label="Enter Recipient Account Number"
                 onChange={(e) => setRecipientAccountNumber(e.nativeEvent.text)}
+                keyboardType="numeric"
               />
             </View>
           </View>
